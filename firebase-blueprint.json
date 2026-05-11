@@ -1,0 +1,103 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User account for admin or courier",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string" },
+        "role": { "type": "string", "enum": ["admin", "kurir"] },
+        "name": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "status": { "type": "string", "enum": ["active", "inactive"] }
+      },
+      "required": ["email", "role", "name", "createdAt", "status"]
+    },
+    "InventoryItem": {
+      "title": "Inventory Item",
+      "description": "Stock item available",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "category": { "type": "string" },
+        "stockLevel": { "type": "number" },
+        "minStockLevel": { "type": "number" },
+        "price": { "type": "number" },
+        "sku": { "type": "string" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "stockLevel", "minStockLevel", "price", "updatedAt"]
+    },
+    "InventoryRequest": {
+      "title": "Inventory Request",
+      "description": "Request made by kurir to restock their inventory",
+      "type": "object",
+      "properties": {
+        "kurirId": { "type": "string" },
+        "kurirName": { "type": "string" },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "inventoryId": { "type": "string" },
+              "name": { "type": "string" },
+              "quantity": { "type": "number" }
+            },
+            "required": ["inventoryId", "name", "quantity"]
+          }
+        },
+        "status": { "type": "string", "enum": ["pending", "approved", "rejected"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" },
+        "note": { "type": "string" }
+      },
+      "required": ["kurirId", "kurirName", "items", "status", "createdAt", "updatedAt"]
+    },
+    "Transaction": {
+      "title": "Transaction",
+      "description": "Transaction recorded by kurir",
+      "type": "object",
+      "properties": {
+        "kurirId": { "type": "string" },
+        "kurirName": { "type": "string" },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "inventoryId": { "type": "string" },
+              "name": { "type": "string" },
+              "quantity": { "type": "number" },
+              "price": { "type": "number" }
+            },
+            "required": ["inventoryId", "name", "quantity", "price"]
+          }
+        },
+        "totalAmount": { "type": "number" },
+        "type": { "type": "string", "enum": ["sale", "restock", "adjustment"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "note": { "type": "string" }
+      },
+      "required": ["kurirId", "kurirName", "items", "totalAmount", "type", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "User accounts"
+    },
+    "/inventory/{inventoryId}": {
+      "schema": { "$ref": "#/entities/InventoryItem" },
+      "description": "Inventory list"
+    },
+    "/requests/{requestId}": {
+      "schema": { "$ref": "#/entities/InventoryRequest" },
+      "description": "Courier inventory requests"
+    },
+    "/transactions/{transactionId}": {
+      "schema": { "$ref": "#/entities/Transaction" },
+      "description": "Transactions completed by courier"
+    }
+  }
+}

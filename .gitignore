@@ -1,0 +1,15 @@
+node_modules/
+build/
+dist/
+coverage/
+.DS_Store
+*.log
+.env*
+!.env.example
+
+# PocketBase
+pocketbase/pocketbase.exe
+pocketbase/.token
+pocketbase/pb_data/*.db
+pocketbase/pb_data/*.db-shm
+pocketbase/pb_data/*.db-wal

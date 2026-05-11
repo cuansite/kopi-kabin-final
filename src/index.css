@@ -1,0 +1,89 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=JetBrains+Mono:wght@400;700;800&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-brand-yellow: #FDC500;
+  --color-brand-blue: #000EE9;
+  --color-brand-navy: #00095B;
+  --color-brand-red: #FA0200;
+  --color-brand-orange: #FD564B;
+  
+  --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --animate-spin-slow: spin 15s linear infinite;
+  --animate-scanline: scanline 4s linear infinite;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: "DM Sans", sans-serif;
+  background-color: var(--color-brand-yellow);
+  color: var(--color-brand-blue);
+  overflow-x: hidden;
+}
+
+::selection {
+  background-color: var(--color-brand-blue);
+  color: var(--color-brand-yellow);
+}
+
+.bg-tech-grid {
+  background-size: 50px 50px;
+  background-image: 
+    linear-gradient(to right, rgba(0, 14, 233, 0.1) 2px, transparent 2px),
+    linear-gradient(to bottom, rgba(0, 14, 233, 0.1) 2px, transparent 2px);
+}
+
+.bg-tech-grid-light {
+  background-size: 50px 50px;
+  background-image: 
+    linear-gradient(to right, rgba(253, 197, 0, 0.1) 2px, transparent 2px),
+    linear-gradient(to bottom, rgba(253, 197, 0, 0.1) 2px, transparent 2px);
+}
+
+.brutal-shadow {
+  box-shadow: 8px 8px 0px var(--color-brand-blue);
+}
+.brutal-shadow:hover {
+  box-shadow: 12px 12px 0px var(--color-brand-blue);
+  transform: translate(-4px, -4px);
+}
+
+.brutal-shadow-yellow {
+  box-shadow: 8px 8px 0px var(--color-brand-yellow);
+}
+.brutal-shadow-yellow:hover {
+  box-shadow: 12px 12px 0px var(--color-brand-yellow);
+  transform: translate(-4px, -4px);
+}
+
+.glitch-hover:hover {
+  animation: glitch 0.3s cubic-bezier(.25, .46, .45, .94) both infinite;
+  color: var(--color-brand-red);
+}
+
+.text-stroke-blue {
+  -webkit-text-stroke: 2px var(--color-brand-blue);
+}
+
+@keyframes glitch {
+  0% { transform: translate(0) }
+  20% { transform: translate(-2px, 2px) }
+  40% { transform: translate(-2px, -2px) }
+  60% { transform: translate(2px, 2px) }
+  80% { transform: translate(2px, -2px) }
+  100% { transform: translate(0) }
+}
+
+@keyframes scanline {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(2000%); }
+}
+
+.perspective-1000 {
+  perspective: 1000px;
+}

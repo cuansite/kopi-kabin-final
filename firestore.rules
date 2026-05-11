@@ -1,0 +1,121 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+    
+    function isValidId(id) { return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); }
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+    function isSignedIn() { return request.auth != null && request.auth.uid != null; }
+    function isAdminEmail() {
+      return isSignedIn() && 'email' in request.auth.token && request.auth.token.email == 'cuansite@gmail.com';
+    }
+    function isSeedKurirEmail() {
+      return isSignedIn() && 'email' in request.auth.token && request.auth.token.email == 'bertrand.max.99@gmail.com';
+    }
+    function isAdmin() { 
+      return isSignedIn() && (isAdminEmail() || (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin')); 
+    }
+    function isKurir() {
+      return isSignedIn() && exists(/databases/$(database)/documents/users/$(request.auth.uid)) && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'kurir';
+    }
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    match /users/{userId} {
+      function isValidUser(data) {
+        return data.keys().hasAll(['email', 'role', 'name', 'createdAt', 'status'])
+          && data.email is string
+          && data.role in ['admin', 'kurir']
+          && data.name is string
+          && data.status in ['active', 'inactive'];
+      }
+      function isValidUserUpdate(data) {
+        return data.keys().hasAll(['email', 'role', 'name', 'createdAt', 'status'])
+          && data.email is string
+          && data.role in ['admin', 'kurir']
+          && data.name is string
+          && data.status in ['active', 'inactive'];
+      }
+
+      allow get: if isSignedIn() && (isOwner(userId) || isAdmin());
+      allow list: if isAdmin();
+      
+      allow create: if (isAdmin() || (isOwner(userId) && isSeedKurirEmail())) && isValidId(userId) && isValidUser(incoming());
+      
+      allow update: if isAdmin() && isValidUserUpdate(incoming());
+      allow delete: if isAdmin();
+    }
+
+    match /inventory/{inventoryId} {
+      function isValidInventoryItem(data) {
+        return data.keys().hasAll(['name', 'stockLevel', 'minStockLevel', 'price', 'updatedAt'])
+        && data.name is string && data.name.size() > 0 && data.name.size() < 100
+        && data.stockLevel is number
+        && data.minStockLevel is number
+        && data.price is number
+        && data.updatedAt == request.time;
+      }
+      
+      allow read: if true;
+      allow create: if isAdmin() && isValidId(inventoryId) && isValidInventoryItem(incoming());
+      allow update: if (isAdmin() && isValidInventoryItem(incoming())) ||
+                   (isKurir() && incoming().keys().hasAll(['name', 'stockLevel', 'minStockLevel', 'price', 'updatedAt']) && incoming().diff(existing()).affectedKeys().hasOnly(['stockLevel', 'updatedAt']) && incoming().updatedAt == request.time);
+      allow delete: if isAdmin();
+    }
+
+    match /requests/{requestId} {
+      function isValidRequest(data) {
+        return data.keys().hasAll(['kurirId', 'kurirName', 'items', 'status', 'createdAt', 'updatedAt'])
+        && data.kurirId is string && data.kurirId == request.auth.uid
+        && data.kurirName is string && data.kurirName.size() > 0 && data.kurirName.size() < 100
+        && data.items is list
+        && data.items.size() <= 100
+        && data.status in ['pending', 'approved', 'rejected']
+        && data.createdAt == request.time
+        && data.updatedAt == request.time;
+      }
+      function isValidRequestUpdate(data) {
+        return data.keys().hasAll(['kurirId', 'kurirName', 'items', 'status', 'createdAt', 'updatedAt'])
+        && data.kurirId is string
+        && data.kurirName is string
+        && data.items is list
+        && data.items.size() <= 100
+        && data.status in ['pending', 'approved', 'rejected']
+        && data.updatedAt == request.time;
+      }
+
+      allow get: if isSignedIn() && (existing().kurirId == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (resource.data.kurirId == request.auth.uid || isAdmin());
+      
+      allow create: if isKurir() && isValidId(requestId) && isValidRequest(incoming()) && incoming().status == 'pending';
+      
+      allow update: if isAdmin() && isValidRequestUpdate(incoming()) && incoming().createdAt == existing().createdAt && incoming().diff(existing()).affectedKeys().hasAny(['status', 'updatedAt', 'note']);
+      allow delete: if isAdmin();
+    }
+
+    match /transactions/{transactionId} {
+      function isValidTransaction(data) {
+         return data.keys().hasAll(['kurirId', 'kurirName', 'items', 'totalAmount', 'type', 'createdAt'])
+         && data.kurirId is string
+         && data.kurirId == request.auth.uid
+         && data.kurirName is string && data.kurirName.size() > 0 && data.kurirName.size() < 100
+         && data.items is list
+         && data.items.size() <= 100
+         && data.totalAmount is number
+         && data.type in ['sale', 'restock', 'adjustment']
+         && data.createdAt == request.time;
+      }
+
+      allow get: if isSignedIn() && (existing().kurirId == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (resource.data.kurirId == request.auth.uid || isAdmin());
+
+      allow create: if isKurir() && isValidId(transactionId) && isValidTransaction(incoming());
+      allow update: if false; 
+      allow delete: if false;
+    }
+  }
+}
