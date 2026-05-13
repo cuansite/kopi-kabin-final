@@ -6,9 +6,9 @@ import { applyApprovedTransfer, applySaleToCourierStock, LedgerItem } from './sr
 dotenv.config();
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL ?? '';
-const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? '';
+const serviceRoleKey = process.env.APP_SUPABASE_SERVICE_KEY ?? '';
 if (!supabaseUrl || !serviceRoleKey) {
-  console.error('[server] Missing VITE_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY env vars');
+  console.error('[server] Missing VITE_SUPABASE_URL or APP_SUPABASE_SERVICE_KEY env vars');
 }
 const supabaseAdmin = createClient(
   supabaseUrl || 'https://placeholder.supabase.co',
@@ -168,8 +168,8 @@ app.get('/api/debug-env', (_req, res) => {
   res.json({
     hasUrl: !!process.env.VITE_SUPABASE_URL,
     urlPrefix: process.env.VITE_SUPABASE_URL?.slice(0, 30) ?? 'MISSING',
-    hasKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
-    keyPrefix: process.env.SUPABASE_SERVICE_ROLE_KEY?.slice(0, 12) ?? 'MISSING',
+    hasKey: !!process.env.APP_SUPABASE_SERVICE_KEY,
+    keyPrefix: process.env.APP_SUPABASE_SERVICE_KEY?.slice(0, 12) ?? 'MISSING',
   });
 });
 
