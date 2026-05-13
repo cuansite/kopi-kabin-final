@@ -6,7 +6,7 @@ import { KopiKabinLogo } from '../components/KopiKabinLogo';
 import { Loader2, Eye, EyeOff } from 'lucide-react';
 
 export const Login = ({ type }: { type: 'admin' | 'kurir' }) => {
-  const { user, userData, loading, signOut } = useAuth();
+  const { user, userData, loading, serverError, signOut } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -28,11 +28,14 @@ export const Login = ({ type }: { type: 'admin' | 'kurir' }) => {
 
     // Auth succeeded + profile fetch done → check result
     if (!user || !userData) {
-      // Profile missing or fetch failed
-      setError('Login failed: account not found or inactive. Contact administrator.');
+      if (serverError) {
+        setError('Server error. Please try again in a moment.');
+      } else {
+        setError('Login failed: account not found or inactive. Contact administrator.');
+        signOut();
+      }
       setIsLoggingIn(false);
       setAuthSucceeded(false);
-      signOut();
       return;
     }
 

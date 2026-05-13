@@ -14,6 +14,7 @@ interface AuthContextType {
   user: AuthRecord | null;
   userData: UserRole | null;
   loading: boolean;
+  serverError: boolean;
   signOut: () => void;
 }
 
@@ -21,31 +22,29 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   userData: null,
   loading: true,
+  serverError: false,
   signOut: () => {},
 });
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [profile, setProfile] = useState<AuthRecord | null>(null);
   const [loading, setLoading] = useState(true);
+  const [serverError, setServerError] = useState(false);
 
   const fetchProfile = async () => {
     try {
       const data = await apiRequest<AuthRecord>('/api/me');
       setProfile(data);
+      setServerError(false);
     } catch (err: any) {
       setProfile(null);
-      // If the auth session is valid but the user has no profile (or it's
-      // inactive), sign them out so they don't stay stuck in a 403 loop on
-      // every page load. Otherwise the cached Supabase session keeps
-      // re-issuing /api/me requests that always fail.
-      const message = String(err?.message ?? '');
-      if (
-        message.includes('Inactive or unregistered account') ||
-        message.includes('Unauthorized') ||
-        message.includes('Invalid or expired token') ||
-        message.includes('403') ||
-        message.includes('401')
-      ) {
+      const status: number = err?.status ?? 0;
+      if (status >= 500 || status === 0) {
+        // Server crash or network failure — don't sign out, let the user retry
+        setServerError(true);
+      } else {
+        setServerError(false);
+        // 401/403: session valid but no active profile — sign out to clear the loop
         await supabase.auth.signOut();
       }
     } finally {
@@ -64,10 +63,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session) {
-        setLoading(true); // signal "profile fetch in progress" before the async fetch
+        setLoading(true);
+        setServerError(false);
         fetchProfile();
       } else {
         setProfile(null);
+        setServerError(false);
         setLoading(false);
       }
     });
@@ -88,7 +89,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user: profile, userData, loading, signOut }}>
+    <AuthContext.Provider value={{ user: profile, userData, loading, serverError, signOut }}>
       {children}
     </AuthContext.Provider>
   );

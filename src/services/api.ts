@@ -14,7 +14,9 @@ export async function apiRequest<T>(
   const response = await fetch(path, { ...options, headers });
   const payload = await response.json().catch(() => null);
   if (!response.ok) {
-    throw new Error(payload?.error ?? `Request failed: ${response.status}`);
+    const err = new Error(payload?.error ?? `Request failed: ${response.status}`) as Error & { status: number };
+    err.status = response.status;
+    throw err;
   }
   return payload as T;
 }

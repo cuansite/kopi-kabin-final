@@ -5,14 +5,22 @@ import { applyApprovedTransfer, applySaleToCourierStock, LedgerItem } from './sr
 
 dotenv.config();
 
+const supabaseUrl = process.env.VITE_SUPABASE_URL ?? '';
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? '';
+if (!supabaseUrl || !serviceRoleKey) {
+  console.error('[server] Missing VITE_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY env vars');
+}
 const supabaseAdmin = createClient(
-  process.env.VITE_SUPABASE_URL!,
-  process.env.VITE_SUPABASE_SERVICE_ROLE_KEY!,
+  supabaseUrl || 'https://placeholder.supabase.co',
+  serviceRoleKey || 'placeholder-key',
   { auth: { autoRefreshToken: false, persistSession: false } },
 );
 
 const app = express();
 app.use(express.json({ limit: '5mb' }));
+
+const asyncRoute = (fn: express.RequestHandler): express.RequestHandler =>
+  (req, res, next) => (Promise.resolve(fn(req, res, next)) as Promise<unknown>).catch(next);
 
 type StaffRole = 'admin' | 'kurir';
 type StaffProfile = {
@@ -156,14 +164,14 @@ app.post('/api/seed-admin', async (req, res) => {
 });
 
 // ── Profile ─────────────────────────────────────────────────────────────────
-app.get('/api/me', async (req, res) => {
+app.get('/api/me', asyncRoute(async (req, res) => {
   const profile = await requireProfile(req, res);
   if (!profile) return;
   res.json(profile);
-});
+}));
 
 // ── User management (admin only) ─────────────────────────────────────────────
-app.get('/api/users', async (req, res) => {
+app.get('/api/users', asyncRoute(async (req, res) => {
   const profile = await requireProfile(req, res, 'admin');
   if (!profile) return;
 
@@ -180,7 +188,7 @@ app.get('/api/users', async (req, res) => {
   );
 
   res.json((profiles ?? []).map(p => ({ ...p, last_password: metaMap[p.id] ?? null })));
-});
+}));
 
 app.post('/api/users', async (req, res) => {
   const profile = await requireProfile(req, res, 'admin');
@@ -342,7 +350,7 @@ app.patch('/api/users/:id', async (req, res) => {
   }
 });
 
-app.patch('/api/users/:id/location', async (req, res) => {
+app.patch('/api/users/:id/location', asyncRoute(async (req, res) => {
   const admin = await requireProfile(req, res, 'admin');
   if (!admin) return;
   const { location } = req.body as { location: string };
@@ -353,10 +361,10 @@ app.patch('/api/users/:id/location', async (req, res) => {
     .eq('role', 'kurir');
   if (error) return res.status(400).json({ error: error.message });
   res.json({ ok: true });
-});
+}));
 
 // ── Dashboards ───────────────────────────────────────────────────────────────
-app.get('/api/dashboard/admin', async (req, res) => {
+app.get('/api/dashboard/admin', asyncRoute(async (req, res) => {
   const profile = await requireProfile(req, res, 'admin');
   if (!profile) return;
 
@@ -384,9 +392,9 @@ app.get('/api/dashboard/admin', async (req, res) => {
     todayRevenue,
     todayActivity: transactions.data?.length ?? 0,
   });
-});
+}));
 
-app.get('/api/dashboard/kurir', async (req, res) => {
+app.get('/api/dashboard/kurir', asyncRoute(async (req, res) => {
   const profile = await requireProfile(req, res);
   if (!profile) return;
   if (profile.role !== 'kurir' && profile.role !== 'admin') {
@@ -450,10 +458,10 @@ app.get('/api/dashboard/kurir', async (req, res) => {
     currentLocation: profile.current_location ?? null,
     dailyTarget: (profileRow.data as any)?.daily_target ?? null,
   });
-});
+}));
 
 // ── Courier stock ─────────────────────────────────────────────────────────────
-app.get('/api/courier-stock', async (req, res) => {
+app.get('/api/courier-stock', asyncRoute(async (req, res) => {
   const profile = await requireProfile(req, res);
   if (!profile) return;
   if (profile.role !== 'kurir' && profile.role !== 'admin') {
@@ -467,10 +475,10 @@ app.get('/api/courier-stock', async (req, res) => {
     .order('inventory_id');
   if (error) return res.status(500).json({ error: error.message });
   res.json(data ?? []);
-});
+}));
 
 // ── Inventory ─────────────────────────────────────────────────────────────────
-app.get('/api/inventory', async (req, res) => {
+app.get('/api/inventory', asyncRoute(async (req, res) => {
   const profile = await requireProfile(req, res);
   if (!profile) return;
   const { data, error } = await supabaseAdmin
@@ -479,9 +487,9 @@ app.get('/api/inventory', async (req, res) => {
     .order('name');
   if (error) return res.status(500).json({ error: error.message });
   res.json(data ?? []);
-});
+}));
 
-app.post('/api/inventory', async (req, res) => {
+app.post('/api/inventory', asyncRoute(async (req, res) => {
   const profile = await requireProfile(req, res, 'admin');
   if (!profile) return;
 
@@ -492,19 +500,19 @@ app.post('/api/inventory', async (req, res) => {
     .single();
   if (error) return res.status(400).json({ error: error.message });
   res.json(data);
-});
+}));
 
-app.delete('/api/inventory/:id', async (req, res) => {
+app.delete('/api/inventory/:id', asyncRoute(async (req, res) => {
   const profile = await requireProfile(req, res, 'admin');
   if (!profile) return;
 
   const { error } = await supabaseAdmin.from('inventory').delete().eq('id', req.params.id);
   if (error) return res.status(400).json({ error: error.message });
   res.json({ ok: true });
-});
+}));
 
 // ── Requests ─────────────────────────────────────────────────────────────────
-app.get('/api/requests', async (req, res) => {
+app.get('/api/requests', asyncRoute(async (req, res) => {
   const profile = await requireProfile(req, res);
   if (!profile) return;
 
@@ -513,7 +521,7 @@ app.get('/api/requests', async (req, res) => {
   const { data, error } = await query;
   if (error) return res.status(500).json({ error: error.message });
   res.json(data ?? []);
-});
+}));
 
 app.post('/api/requests', async (req, res) => {
   const profile = await requireProfile(req, res);
@@ -623,7 +631,7 @@ app.post('/api/requests/:id/approve', async (req, res) => {
   }
 });
 
-app.post('/api/requests/:id/reject', async (req, res) => {
+app.post('/api/requests/:id/reject', asyncRoute(async (req, res) => {
   const admin = await requireProfile(req, res, 'admin');
   if (!admin) return;
 
@@ -636,10 +644,10 @@ app.post('/api/requests/:id/reject', async (req, res) => {
     .single();
   if (error) return res.status(400).json({ error: error.message });
   res.json(data);
-});
+}));
 
 // ── Transactions ─────────────────────────────────────────────────────────────
-app.get('/api/transactions', async (req, res) => {
+app.get('/api/transactions', asyncRoute(async (req, res) => {
   const profile = await requireProfile(req, res);
   if (!profile) return;
   let query = supabaseAdmin.from('transactions').select('*').order('created_at', { ascending: false });
@@ -647,7 +655,7 @@ app.get('/api/transactions', async (req, res) => {
   const { data, error } = await query;
   if (error) return res.status(500).json({ error: error.message });
   res.json(data ?? []);
-});
+}));
 
 app.post('/api/transactions/sale', async (req, res) => {
   const profile = await requireProfile(req, res);
@@ -680,6 +688,11 @@ app.post('/api/transactions/sale', async (req, res) => {
   } catch (err: any) {
     res.status(400).json({ error: err?.message ?? 'Failed to record sale' });
   }
+});
+
+app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  console.error('[api error]', err);
+  res.status(500).json({ error: 'Internal server error' });
 });
 
 if (process.env.NODE_ENV !== 'production') {
