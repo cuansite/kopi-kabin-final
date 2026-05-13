@@ -1,9 +1,19 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ShoppingCart, Users, FileText, AlertTriangle, TrendingUp, WifiOff } from 'lucide-react';
 import { apiRequest } from '../../services/api';
+import { supabase } from '../../supabase';
+
+type Summary = {
+  totalRequests: number;
+  pendingRequests: number;
+  activeCouriers: number;
+  lowStock: number;
+  todayRevenue: number;
+  todayActivity: number;
+};
 
 export const AdminDashboard = () => {
-  const [summary, setSummary] = useState({
+  const [summary, setSummary] = useState<Summary>({
     totalRequests: 0,
     pendingRequests: 0,
     activeCouriers: 0,
@@ -12,11 +22,36 @@ export const AdminDashboard = () => {
     todayActivity: 0,
   });
   const [error, setError] = useState('');
+  const loadRef = useRef<() => void>();
 
-  useEffect(() => {
-    apiRequest<typeof summary>('/api/dashboard/admin')
+  const load = () => {
+    apiRequest<Summary>('/api/dashboard/admin')
       .then(data => { setSummary(data); setError(''); })
       .catch(err => setError(err?.message ?? 'Gagal memuat data dasbor.'));
+  };
+
+  loadRef.current = load;
+
+  useEffect(() => {
+    load();
+
+    const channel = supabase
+      .channel('admin-dashboard')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'transactions' }, async () => {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) loadRef.current?.();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'requests' }, async () => {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) loadRef.current?.();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'inventory' }, async () => {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) loadRef.current?.();
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
   }, []);
 
   const cards = [

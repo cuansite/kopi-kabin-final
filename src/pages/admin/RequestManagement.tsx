@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { handleFirestoreError, OperationType } from '../../utils/firestoreErrorHandler';
 import { apiRequest } from '../../services/api';
+import { supabase } from '../../supabase';
 import { Clock, CheckCircle, XCircle, Package } from 'lucide-react';
 
 interface RequestRecord {
@@ -24,6 +25,7 @@ export const RequestManagement = () => {
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState<string | null>(null);
   const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all');
+  const loadRef = useRef<() => Promise<void>>();
 
   const load = async () => {
     try {
@@ -35,8 +37,21 @@ export const RequestManagement = () => {
     }
   };
 
+  loadRef.current = load;
+
   useEffect(() => {
     load();
+
+    const channel = supabase
+      .channel('admin-requests')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'requests' }, async () => {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) loadRef.current?.();
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleApprove = async (req: RequestRecord) => {

@@ -18,6 +18,11 @@ const supabaseAdmin = createClient(
 
 const app = express();
 app.use(express.json({ limit: '5mb' }));
+app.use('/api', (_req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  next();
+});
 
 const asyncRoute = (fn: express.RequestHandler): express.RequestHandler =>
   (req, res, next) => (Promise.resolve(fn(req, res, next)) as Promise<unknown>).catch(next);
