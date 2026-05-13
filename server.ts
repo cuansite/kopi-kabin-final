@@ -45,6 +45,7 @@ async function requireProfile(req: express.Request, res: express.Response, role?
 
   const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
   if (authError || !user) {
+    console.error('[requireProfile] getUser failed:', authError?.message, '| url:', supabaseUrl ? supabaseUrl.slice(0, 30) : 'MISSING', '| key set:', !!serviceRoleKey);
     res.status(401).json({ error: 'Invalid or expired token' });
     return null;
   }
