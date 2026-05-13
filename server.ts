@@ -164,6 +164,15 @@ app.post('/api/seed-admin', async (req, res) => {
   }
 });
 
+app.get('/api/debug-env', (_req, res) => {
+  res.json({
+    hasUrl: !!process.env.VITE_SUPABASE_URL,
+    urlPrefix: process.env.VITE_SUPABASE_URL?.slice(0, 30) ?? 'MISSING',
+    hasKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+    keyPrefix: process.env.SUPABASE_SERVICE_ROLE_KEY?.slice(0, 12) ?? 'MISSING',
+  });
+});
+
 // ── Profile ─────────────────────────────────────────────────────────────────
 app.get('/api/me', asyncRoute(async (req, res) => {
   const profile = await requireProfile(req, res);
