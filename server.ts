@@ -1,7 +1,7 @@
 import express from 'express';
 import { createClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
-import { applyApprovedTransfer, applySaleToCourierStock, LedgerItem } from './src/services/ledgerLogic';
+import { applyApprovedTransfer, applySaleToCourierStock, LedgerItem } from './src/services/ledgerLogic.js';
 
 dotenv.config();
 
@@ -131,7 +131,7 @@ app.post('/api/seed-admin', async (req, res) => {
     const { data: listData, error: listError } = await supabaseAdmin.auth.admin.listUsers();
     if (listError) throw listError;
 
-    const existingAuthUser = listData.users.find(u => u.email === email);
+    const existingAuthUser = (listData as any).users.find((u: any) => u.email === email);
     let userId: string;
     let createdNewAuthUser = false;
 
@@ -600,7 +600,7 @@ app.post('/api/requests/:id/approve', async (req, res) => {
 
     await Promise.all([
       ...Object.entries(next.central).map(([id, stockLevel]) =>
-        safeUpdate(() => supabaseAdmin.from('inventory').update({ stock_level: stockLevel }).eq('id', id))
+        safeUpdate(async () => { const { error } = await supabaseAdmin.from('inventory').update({ stock_level: stockLevel }).eq('id', id); if (error) throw error; })
       ),
       safeUpdate(() => upsertCourierStock(reqData.kurir_id, next.courier)),
     ]);
@@ -615,15 +615,16 @@ app.post('/api/requests/:id/approve', async (req, res) => {
     if (updateErr) throw updateErr;
 
     // 6. Log the restock transaction (skip if table doesn't exist)
-    await safeUpdate(() =>
-      supabaseAdmin.from('transactions').insert({
+    await safeUpdate(async () => {
+      const { error } = await supabaseAdmin.from('transactions').insert({
         kurir_id: reqData.kurir_id,
         kurir_name: reqData.kurir_name,
         items: reqData.items,
         total_amount: 0,
         type: 'restock',
-      }).then(({ error }) => { if (error) throw error; })
-    );
+      });
+      if (error) throw error;
+    });
 
     res.json(updated);
   } catch (err: any) {
