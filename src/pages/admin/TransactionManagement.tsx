@@ -3,6 +3,7 @@ import { handleFirestoreError, OperationType } from '../../utils/firestoreErrorH
 import { apiRequest } from '../../services/api';
 import { supabase } from '../../supabase';
 import { ShoppingCart, TrendingUp, RefreshCw } from 'lucide-react';
+import { TX_TYPE_BADGE } from '../kurir/TransactionTracker';
 
 interface SaleItem {
   inventoryId: string;
@@ -20,12 +21,6 @@ interface TransactionRecord {
   type: 'sale' | 'restock' | 'adjustment';
   created_at: string;
 }
-
-const TYPE_CONFIG = {
-  sale:       { label: 'Sale',       cls: 'bg-green-100 text-green-700 border-green-400' },
-  restock:    { label: 'Restock',    cls: 'bg-blue-100 text-blue-700 border-blue-400' },
-  adjustment: { label: 'Adjustment', cls: 'bg-yellow-100 text-yellow-700 border-yellow-400' },
-};
 
 export const TransactionManagement = () => {
   const [transactions, setTransactions] = useState<TransactionRecord[]>([]);
@@ -83,15 +78,15 @@ export const TransactionManagement = () => {
   ).length;
 
   if (loading) return (
-    <div className="p-8 font-mono font-bold text-center">Loading transactions...</div>
+    <div className="p-8 font-mono font-bold text-center">Memuat transaksi...</div>
   );
 
   return (
     <div className="max-w-5xl mx-auto flex flex-col gap-6">
       <div>
-        <h2 className="text-3xl font-black uppercase text-[#003B73]">Transaction Management</h2>
+        <h2 className="text-3xl font-black uppercase text-[#003B73]">Manajemen Transaksi</h2>
         <p className="font-mono text-sm text-gray-600 mt-1">
-          All kurir sales and stock movements.
+          Semua penjualan kurir dan pergerakan stok.
         </p>
       </div>
 
@@ -99,21 +94,21 @@ export const TransactionManagement = () => {
         <div className="bg-white border-[4px] border-black p-4 shadow-[6px_6px_0px_#FDC500] flex items-center gap-3 min-w-0">
           <ShoppingCart size={28} className="text-[#003B73] shrink-0" />
           <div className="min-w-0">
-            <p className="font-mono text-[10px] text-gray-500 uppercase">Total Transactions</p>
+            <p className="font-mono text-[10px] text-gray-500 uppercase">Total Transaksi</p>
             <p className="font-black text-2xl text-[#003B73]">{filtered.length}</p>
           </div>
         </div>
         <div className="bg-white border-[4px] border-black p-4 shadow-[6px_6px_0px_#FDC500] flex items-center gap-3 min-w-0">
           <TrendingUp size={28} className="text-green-600 shrink-0" />
           <div className="min-w-0">
-            <p className="font-mono text-[10px] text-gray-500 uppercase">Sales Revenue</p>
+            <p className="font-mono text-[10px] text-gray-500 uppercase">Pendapatan Penjualan</p>
             <p className="font-black text-xl lg:text-2xl text-[#003B73] break-words">Rp {totalRevenue.toLocaleString('id-ID')}</p>
           </div>
         </div>
         <div className="bg-white border-[4px] border-black p-4 shadow-[6px_6px_0px_#FDC500] flex items-center gap-3 min-w-0">
           <RefreshCw size={28} className="text-[#003B73] shrink-0" />
           <div>
-            <p className="font-mono text-[10px] text-gray-500 uppercase">Today's Activity</p>
+            <p className="font-mono text-[10px] text-gray-500 uppercase">Aktivitas Hari Ini</p>
             <p className="font-black text-2xl text-[#003B73]">{todayCount}</p>
           </div>
         </div>
@@ -127,7 +122,7 @@ export const TransactionManagement = () => {
               onClick={() => setTypeFilter(f)}
               className={`px-4 py-2 border-[2px] border-black font-bold uppercase text-sm transition-colors ${typeFilter === f ? 'bg-[#003B73] text-white' : 'bg-white hover:bg-gray-100'}`}
             >
-              {f}
+              {f === 'all' ? 'Semua' : f === 'sale' ? 'Penjualan' : f === 'restock' ? 'Restock' : 'Penyesuaian'}
             </button>
           ))}
         </div>
@@ -137,7 +132,7 @@ export const TransactionManagement = () => {
             onChange={e => setKurirFilter(e.target.value)}
             className="border-[2px] border-black px-3 py-2 font-mono text-sm font-bold bg-white outline-none focus:border-[#003B73] max-w-full"
           >
-            <option value="all">All Kurirs</option>
+            <option value="all">Semua Kurir</option>
             {allKurirs.map(k => (
               <option key={k} value={k}>{k}</option>
             ))}
@@ -148,15 +143,15 @@ export const TransactionManagement = () => {
       {filtered.length === 0 ? (
         <div className="bg-white border-[4px] border-black p-8 sm:p-12 text-center shadow-[8px_8px_0px_#FDC500]">
           <ShoppingCart className="mx-auto mb-4 text-gray-400" size={48} />
-          <h3 className="font-black text-xl text-[#003B73]">No Transactions</h3>
+          <h3 className="font-black text-xl text-[#003B73]">Tidak Ada Transaksi</h3>
           <p className="font-mono text-sm text-gray-500 mt-1">
-            No {typeFilter !== 'all' ? typeFilter : ''} transactions found.
+            Tidak ada transaksi {typeFilter !== 'all' ? (typeFilter === 'sale' ? 'penjualan' : typeFilter === 'restock' ? 'restock' : 'penyesuaian') : ''} yang ditemukan.
           </p>
         </div>
       ) : (
         <div className="flex flex-col gap-4">
           {filtered.map(tx => {
-            const cfg = TYPE_CONFIG[tx.type] ?? TYPE_CONFIG.sale;
+            const cfg = TX_TYPE_BADGE[tx.type] ?? TX_TYPE_BADGE.sale;
             return (
               <div key={tx.id} className="bg-white border-[4px] border-black p-4 shadow-[6px_6px_0px_#003B73]">
                 <div className="flex flex-col md:flex-row md:items-start justify-between gap-3 mb-4">
@@ -182,7 +177,7 @@ export const TransactionManagement = () => {
 
                 <div className="border-[2px] border-gray-200">
                   <div className="bg-gray-50 px-3 py-1 border-b-[2px] border-gray-200 font-mono text-[10px] font-bold uppercase text-gray-500">
-                    Items
+                    Item
                   </div>
                   {(tx.items ?? []).map((item, i) => (
                     <div key={i} className="grid grid-cols-[1fr_auto_auto] gap-3 px-3 py-2 font-mono text-sm border-b border-dashed border-gray-100 last:border-b-0">

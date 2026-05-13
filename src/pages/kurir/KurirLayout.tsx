@@ -48,9 +48,9 @@ const KurirLayoutInner = () => {
   if (!user || (userData?.role !== 'kurir' && userData?.role !== 'admin')) return <Navigate to="/login/kurir" replace />;
 
   const navItems = [
-    { name: 'Home',    path: '/kurir',         icon: <LayoutDashboard size={24} /> },
+    { name: 'Beranda',    path: '/kurir',         icon: <LayoutDashboard size={24} /> },
     {
-      name: 'Request', path: '/kurir/request',
+      name: 'Permintaan', path: '/kurir/request',
       icon: (
         <div className="relative">
           <PackagePlus size={24} />
@@ -60,8 +60,8 @@ const KurirLayoutInner = () => {
         </div>
       ),
     },
-    { name: 'History', path: '/kurir/history',  icon: <History size={24} /> },
-    { name: 'Sales',   path: '/kurir/sales',    icon: <ShoppingCart size={24} /> },
+    { name: 'Riwayat', path: '/kurir/history',  icon: <History size={24} /> },
+    { name: 'Penjualan',   path: '/kurir/sales',    icon: <ShoppingCart size={24} /> },
   ];
 
   return (

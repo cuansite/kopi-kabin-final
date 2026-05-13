@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Generate Test Image</title>
+</head>
+<body>
+  <canvas id="c" width="2000" height="2000"></canvas>
+  <script>
+    const canvas = document.getElementById('c');
+    const ctx = canvas.getContext('2d');
+    
+    // Fill background
+    ctx.fillStyle = '#0000E9';
+    ctx.fillRect(0, 0, 2000, 2000);
+    
+    // Draw random circles
+    for (let i = 0; i < 100; i++) {
+      ctx.fillStyle = `#${Math.floor(Math.random()*16777215).toString(16).padStart(6, '0')}`;
+      ctx.beginPath();
+      ctx.arc(Math.random() * 2000, Math.random() * 2000, Math.random() * 150 + 50, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    
+    // Export as image and trigger download
+    canvas.toBlob(blob => {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'large-test.png';
+      a.click();
+      console.log(`Generated image: ${blob.size} bytes`);
+    });
+  </script>
+</body>
+</html>

@@ -7,6 +7,10 @@ coverage/
 .env*
 !.env.example
 
+# Claude Code
+.claude/settings.local.json
+.playwright-mcp/
+
 # PocketBase
 pocketbase/pocketbase.exe
 pocketbase/.token

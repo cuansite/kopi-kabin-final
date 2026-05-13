@@ -1,0 +1,11 @@
+<svg width="1000" height="1000" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1000" height="1000" fill="#0000E9"/>
+  <circle cx="500" cy="500" r="200" fill="#FA0200"/>
+  <text x="500" y="530" text-anchor="middle" font-size="80" fill="white" font-weight="bold">TEST</text>
+  <g opacity="0.5">
+    <circle cx="300" cy="300" r="50" fill="#FD564B"/>
+    <circle cx="700" cy="300" r="50" fill="#00095B"/>
+    <circle cx="300" cy="700" r="50" fill="#00095B"/>
+    <circle cx="700" cy="700" r="50" fill="#FD564B"/>
+  </g>
+</svg>

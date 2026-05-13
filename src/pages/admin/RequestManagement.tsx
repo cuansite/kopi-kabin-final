@@ -14,9 +14,9 @@ interface RequestRecord {
 }
 
 const STATUS_CONFIG = {
-  pending:  { label: 'Pending',  icon: <Clock size={14} />,       cls: 'bg-yellow-100 text-yellow-700 border-yellow-400' },
-  approved: { label: 'Approved', icon: <CheckCircle size={14} />, cls: 'bg-green-100 text-green-700 border-green-400' },
-  rejected: { label: 'Rejected', icon: <XCircle size={14} />,     cls: 'bg-red-100 text-red-600 border-red-400' },
+  pending:  { label: 'Menunggu',  icon: <Clock size={14} />,       cls: 'bg-yellow-100 text-yellow-700 border-yellow-400' },
+  approved: { label: 'Disetujui', icon: <CheckCircle size={14} />, cls: 'bg-green-100 text-green-700 border-green-400' },
+  rejected: { label: 'Ditolak',   icon: <XCircle size={14} />,     cls: 'bg-red-100 text-red-600 border-red-400' },
 };
 
 export const RequestManagement = () => {
@@ -47,7 +47,7 @@ export const RequestManagement = () => {
       setRequests(prev => prev.map(r => r.id === updated.id ? updated : r));
     } catch (e) {
       handleFirestoreError(e, OperationType.UPDATE, `requests/${req.id}`);
-      alert(e instanceof Error ? e.message : 'Failed to approve request');
+      alert(e instanceof Error ? e.message : 'Gagal menyetujui permintaan');
     } finally {
       setProcessing(null);
     }
@@ -55,14 +55,14 @@ export const RequestManagement = () => {
 
   const handleReject = async (req: RequestRecord) => {
     if (processing) return;
-    if (!window.confirm('Reject this request?')) return;
+    if (!window.confirm('Tolak permintaan ini?')) return;
     setProcessing(req.id);
     try {
       const updated = await apiRequest<RequestRecord>(`/api/requests/${req.id}/reject`, { method: 'POST' });
       setRequests(prev => prev.map(r => r.id === updated.id ? updated : r));
     } catch (e) {
       handleFirestoreError(e, OperationType.UPDATE, `requests/${req.id}`);
-      alert('Failed to reject request');
+      alert('Gagal menolak permintaan');
     } finally {
       setProcessing(null);
     }
@@ -71,20 +71,20 @@ export const RequestManagement = () => {
   const filtered = filter === 'all' ? requests : requests.filter(r => r.status === filter);
   const pendingCount = requests.filter(r => r.status === 'pending').length;
 
-  if (loading) return <div className="p-8 font-mono font-bold text-center">Loading requests...</div>;
+  if (loading) return <div className="p-8 font-mono font-bold text-center">Memuat permintaan...</div>;
 
   return (
     <div className="max-w-4xl mx-auto flex flex-col gap-6">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-black uppercase text-[#003B73]">Request Management</h2>
+          <h2 className="text-3xl font-black uppercase text-[#003B73]">Manajemen Permintaan</h2>
           <p className="font-mono text-sm text-gray-600 mt-1">
-            Kurir restock requests - approve to transfer central stock to courier stock.
+            Permintaan restock kurir - setujui untuk mentransfer stok pusat ke stok kurir.
           </p>
         </div>
         {pendingCount > 0 && (
           <span className="bg-[#FDC500] border-[3px] border-black px-4 py-2 font-black text-[#003B73] uppercase text-sm">
-            {pendingCount} Pending
+            {pendingCount} Menunggu
           </span>
         )}
       </div>
@@ -96,7 +96,7 @@ export const RequestManagement = () => {
             onClick={() => setFilter(f)}
             className={`px-4 py-2 border-[2px] border-black font-bold uppercase text-sm transition-colors ${filter === f ? 'bg-[#003B73] text-white' : 'bg-white hover:bg-gray-100'}`}
           >
-            {f}
+            {f === 'all' ? 'Semua' : f === 'pending' ? 'Menunggu' : f === 'approved' ? 'Disetujui' : 'Ditolak'}
           </button>
         ))}
       </div>
@@ -104,8 +104,8 @@ export const RequestManagement = () => {
       {filtered.length === 0 ? (
         <div className="bg-white border-[4px] border-black p-8 sm:p-12 text-center shadow-[8px_8px_0px_#FDC500]">
           <Package className="mx-auto mb-4 text-gray-400" size={48} />
-          <h3 className="font-black text-xl text-[#003B73]">No Requests</h3>
-          <p className="font-mono text-sm text-gray-500 mt-1">No {filter !== 'all' ? filter : ''} requests found.</p>
+          <h3 className="font-black text-xl text-[#003B73]">Tidak Ada Permintaan</h3>
+          <p className="font-mono text-sm text-gray-500 mt-1">Tidak ada permintaan {filter !== 'all' ? (filter === 'pending' ? 'menunggu' : filter === 'approved' ? 'disetujui' : 'ditolak') : ''} yang ditemukan.</p>
         </div>
       ) : (
         <div className="flex flex-col gap-4">
@@ -129,7 +129,7 @@ export const RequestManagement = () => {
 
                 <div className="border-[2px] border-gray-200 mb-4">
                   <div className="bg-gray-50 px-3 py-1 border-b-[2px] border-gray-200 font-mono text-[10px] font-bold uppercase text-gray-500">
-                    Requested Items
+                    Item yang Diminta
                   </div>
                   {(req.items ?? []).map((item, i) => (
                     <div key={i} className="flex justify-between gap-3 px-3 py-2 font-mono text-sm border-b border-dashed border-gray-100 last:border-b-0">
@@ -141,7 +141,7 @@ export const RequestManagement = () => {
 
                 {req.note && (
                   <p className="font-mono text-xs text-gray-500 italic mb-4 border-t border-gray-100 pt-2 break-words">
-                    Note: {req.note}
+                    Catatan: {req.note}
                   </p>
                 )}
 
@@ -153,7 +153,7 @@ export const RequestManagement = () => {
                       className="flex-1 flex items-center justify-center gap-2 py-3 border-[3px] border-black bg-green-500 text-white font-bold uppercase hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <CheckCircle size={18} />
-                      {isProcessing ? 'Processing...' : 'Approve Transfer'}
+                      {isProcessing ? 'Memproses...' : 'Setujui Transfer'}
                     </button>
                     <button
                       onClick={() => handleReject(req)}
@@ -161,7 +161,7 @@ export const RequestManagement = () => {
                       className="flex-1 flex items-center justify-center gap-2 py-3 border-[3px] border-black bg-red-100 text-red-700 font-bold uppercase hover:bg-red-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <XCircle size={18} />
-                      Reject
+                      Tolak
                     </button>
                   </div>
                 )}

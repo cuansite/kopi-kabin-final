@@ -12,7 +12,7 @@ const supabaseAdmin = createClient(
 );
 
 const app = express();
-app.use(express.json());
+app.use(express.json({ limit: '5mb' }));
 
 type StaffRole = 'admin' | 'kurir';
 type StaffProfile = {

@@ -10,6 +10,16 @@ export const MenuCarousel = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const active = menuItems[currentIndex];
 
+  const getImageSrc = (imageUrl: string | undefined) => {
+    if (!imageUrl) return '';
+    if (imageUrl.startsWith('data:')) return imageUrl;
+    if (imageUrl.startsWith('png;base64,') || imageUrl.startsWith('jpeg;base64,')) {
+      const [format, base64] = imageUrl.split(';base64,');
+      return `data:image/${format};base64,${base64}`;
+    }
+    return `data:image/png;base64,${imageUrl}`;
+  };
+
   const visibleItems = useMemo(() => {
     if (!menuItems.length) return [];
     return [-1, 0, 1].map(offset => {
@@ -20,8 +30,17 @@ export const MenuCarousel = () => {
 
   const go = (direction: number) => {
     if (!menuItems.length) return;
-    setCurrentIndex(prev => (prev + direction + menuItems.length) % menuItems.length);
+    setCurrentIndex(prev => {
+      const newIndex = (prev + direction + menuItems.length) % menuItems.length;
+      return newIndex < menuItems.length ? newIndex : 0;
+    });
   };
+
+  React.useEffect(() => {
+    if (currentIndex >= menuItems.length && menuItems.length > 0) {
+      setCurrentIndex(menuItems.length - 1);
+    }
+  }, [menuItems.length]);
 
   const skeletonItems = loading && menuItems.length === 0;
 
@@ -98,7 +117,7 @@ export const MenuCarousel = () => {
                         <div className="absolute inset-0 flex items-center justify-center p-8">
                           <div className="w-44 h-44 md:w-52 md:h-52 bg-white border-[4px] border-brand-navy shadow-[8px_8px_0px_rgba(0,0,0,0.25)] flex items-center justify-center overflow-hidden">
                             {item.imageUrl ? (
-                              <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
+                              <img src={getImageSrc(item.imageUrl)} alt={item.name} className="w-full h-full object-contain" />
                             ) : (
                               <KopiKabinLogo className="w-28 h-28 text-brand-blue" />
                             )}

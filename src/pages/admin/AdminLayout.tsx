@@ -18,12 +18,12 @@ export const AdminLayout = () => {
   if (!user || userData?.role !== 'admin') return <Navigate to="/login/admin" replace />;
 
   const navItems = [
-    { name: 'Dashboard',    path: '/admin',               icon: <LayoutDashboard size={20} /> },
-    { name: 'Requests',     path: '/admin/requests',      icon: <FileText size={20} /> },
-    { name: 'Transactions', path: '/admin/transactions',  icon: <ShoppingCart size={20} /> },
-    { name: 'Inventory',    path: '/admin/inventory',     icon: <Package size={20} /> },
-    { name: 'Users',        path: '/admin/users',         icon: <Users size={20} /> },
-    { name: 'Carousel',     path: '/admin/carousel',      icon: <Settings size={20} /> },
+    { name: 'Dasbor',      path: '/admin',               icon: <LayoutDashboard size={20} /> },
+    { name: 'Permintaan',  path: '/admin/requests',      icon: <FileText size={20} /> },
+    { name: 'Transaksi',   path: '/admin/transactions',  icon: <ShoppingCart size={20} /> },
+    { name: 'Inventaris',  path: '/admin/inventory',     icon: <Package size={20} /> },
+    { name: 'Pengguna',    path: '/admin/users',         icon: <Users size={20} /> },
+    { name: 'Karousel',    path: '/admin/carousel',      icon: <Settings size={20} /> },
   ];
 
   return (
@@ -67,13 +67,13 @@ export const AdminLayout = () => {
              to="/kurir"
              className="w-full flex items-center justify-center gap-2 px-4 py-3 border-[2px] border-[#FDC500] text-[#FDC500] hover:bg-[#FDC500] hover:text-[#003B73] font-bold uppercase text-sm transition-colors"
            >
-             Kurir Portal
+             Portal Kurir
            </Link>
            <button 
              onClick={signOut}
              className="w-full flex items-center justify-center gap-2 px-4 py-3 border-[2px] border-red-500 text-red-400 hover:bg-red-500 hover:text-white font-bold uppercase text-sm transition-colors"
            >
-             <LogOut size={20} /> Sign Out
+             <LogOut size={20} /> Keluar
            </button>
         </div>
       </aside>

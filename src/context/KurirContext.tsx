@@ -299,7 +299,7 @@ export const KurirProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const todayActivity = useMemo(() => {
     const todayStr = new Date().toDateString();
-    return transactions.filter(t => new Date(t.created_at).toDateString() === todayStr).length;
+    return transactions.filter(t => t.type === 'sale' && new Date(t.created_at).toDateString() === todayStr).length;
   }, [transactions]);
 
   const latestRequest = useMemo(() => requests[0] ?? null, [requests]);

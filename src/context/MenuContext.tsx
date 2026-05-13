@@ -29,6 +29,7 @@ export const DEFAULT_MENU: MenuItem[] = [
 interface MenuContextType {
   menuItems: MenuItem[];
   updateMenuItem: (id: string, updates: Partial<MenuItem>) => Promise<void>;
+  deleteMenuItem: (id: string) => Promise<void>;
   loading: boolean;
 }
 
@@ -110,8 +111,16 @@ export const MenuProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (error) handleFirestoreError(error, OperationType.UPDATE, `inventory/${id}`);
   };
 
+  const deleteMenuItem = async (id: string) => {
+    const { error } = await supabase.from('inventory').delete().eq('id', id);
+    if (error) {
+      handleFirestoreError(error, OperationType.DELETE, `inventory/${id}`);
+      throw error;
+    }
+  };
+
   return (
-    <MenuContext.Provider value={{ menuItems, updateMenuItem, loading }}>
+    <MenuContext.Provider value={{ menuItems, updateMenuItem, deleteMenuItem, loading }}>
       {children}
     </MenuContext.Provider>
   );

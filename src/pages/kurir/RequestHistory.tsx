@@ -3,9 +3,9 @@ import { useKurir } from '../../context/KurirContext';
 import { Clock, CheckCircle, XCircle, Package } from 'lucide-react';
 
 const STATUS_CONFIG = {
-  pending:  { label: 'Pending',  icon: <Clock size={14} />,       cls: 'bg-yellow-100 text-yellow-700 border-yellow-400' },
-  approved: { label: 'Approved', icon: <CheckCircle size={14} />, cls: 'bg-green-100 text-green-700 border-green-400' },
-  rejected: { label: 'Rejected', icon: <XCircle size={14} />,     cls: 'bg-red-100 text-red-600 border-red-400' },
+  pending:  { label: 'Menunggu',  icon: <Clock size={14} />,       cls: 'bg-yellow-100 text-yellow-700 border-yellow-400' },
+  approved: { label: 'Disetujui', icon: <CheckCircle size={14} />, cls: 'bg-green-100 text-green-700 border-green-400' },
+  rejected: { label: 'Ditolak',   icon: <XCircle size={14} />,     cls: 'bg-red-100 text-red-600 border-red-400' },
 };
 
 export const RequestHistory = () => {
@@ -13,23 +13,23 @@ export const RequestHistory = () => {
 
   if (loadingRequests) return (
     <div className="bg-white border-[4px] border-black p-8 text-center font-mono font-bold">
-      Loading requests...
+      Memuat permintaan...
     </div>
   );
 
   if (requests.length === 0) return (
     <div className="bg-white border-[4px] border-black p-8 text-center shadow-[4px_4px_0px_#FDC500]">
       <Package className="mx-auto mb-4 text-gray-400" size={48} />
-      <h3 className="font-black text-xl text-[#003B73]">No Requests Yet</h3>
-      <p className="font-mono text-sm text-gray-500 mt-2">Submit a restock request from the Request tab.</p>
+      <h3 className="font-black text-xl text-[#003B73]">Belum Ada Permintaan</h3>
+      <p className="font-mono text-sm text-gray-500 mt-2">Kirim permintaan restock dari tab Permintaan.</p>
     </div>
   );
 
   return (
     <div className="flex flex-col gap-4 max-w-lg mx-auto w-full">
       <div className="bg-[#003B73] text-white border-[4px] border-black p-4 shadow-[4px_4px_0px_#FDC500]">
-        <h2 className="font-black text-xl uppercase">Request History</h2>
-        <p className="font-mono text-xs opacity-80">Your restock requests and their status.</p>
+        <h2 className="font-black text-xl uppercase">Riwayat Permintaan</h2>
+        <p className="font-mono text-xs opacity-80">Permintaan restock Anda dan statusnya.</p>
       </div>
 
       {requests.map(req => {
@@ -58,7 +58,7 @@ export const RequestHistory = () => {
             </div>
 
             {req.note && (
-              <p className="font-mono text-xs text-gray-500 italic border-t border-gray-100 pt-2 break-words">Note: {req.note}</p>
+              <p className="font-mono text-xs text-gray-500 italic border-t border-gray-100 pt-2 break-words">Catatan: {req.note}</p>
             )}
           </div>
         );

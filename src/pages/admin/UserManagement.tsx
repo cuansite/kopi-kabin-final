@@ -101,7 +101,7 @@ export const UserManagement = () => {
     e.preventDefault();
     if (!newEmail || !newName || !newPassword) return;
     if (newPassword !== newConfirmPassword) {
-      setAddError('Passwords do not match');
+      setAddError('Kata sandi tidak cocok');
       return;
     }
     setAddError('');
@@ -116,7 +116,7 @@ export const UserManagement = () => {
       setShowNewPassword(false); setShowNewConfirm(false); setNewRole('kurir');
       await reload();
     } catch (err: any) {
-      setAddError(err?.message || 'Failed to create user');
+      setAddError(err?.message || 'Gagal membuat pengguna');
       handleFirestoreError(err, OperationType.CREATE, `profiles/${newEmail}`);
     } finally {
       setAddLoading(false);
@@ -141,7 +141,7 @@ export const UserManagement = () => {
     e.preventDefault();
     if (!editUser) return;
     if (editPassword && editPassword !== editConfirmPassword) {
-      setEditError('Passwords do not match');
+      setEditError('Kata sandi tidak cocok');
       return;
     }
     if (editPassword && editPassword.length < 8) {
@@ -172,7 +172,7 @@ export const UserManagement = () => {
       setEditUser(null);
       await reload();
     } catch (err: any) {
-      setEditError(err?.message || 'Failed to update user');
+      setEditError(err?.message || 'Gagal memperbarui pengguna');
     } finally {
       setEditLoading(false);
     }
@@ -180,10 +180,10 @@ export const UserManagement = () => {
 
   // ── Delete user ─────────────────────────────────────────────────────────────
   const handleDeleteUser = async (id: string) => {
-    if (!window.confirm('Delete this user? This cannot be undone.')) return;
+    if (!window.confirm('Apakah Anda yakin ingin menghapus pengguna ini? Tindakan ini tidak dapat dibatalkan.')) return;
     try {
       await apiRequest(`/api/users/${id}`, { method: 'DELETE' });
-      reload();
+      await reload();
     } catch (err) {
       handleFirestoreError(err, OperationType.DELETE, `profiles/${id}`);
     }
@@ -208,17 +208,17 @@ export const UserManagement = () => {
     }
   };
 
-  if (loading) return <div className="font-mono text-sm p-4">Loading...</div>;
+  if (loading) return <div className="font-mono text-sm p-4">Memuat...</div>;
 
   return (
     <div>
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
-        <h2 className="text-3xl font-black uppercase text-[#003B73]">User Management</h2>
+        <h2 className="text-3xl font-black uppercase text-[#003B73]">Manajemen Pengguna</h2>
         <button
           onClick={() => { setShowAddModal(true); setAddError(''); }}
           className="bg-[#FDC500] text-[#003B73] px-4 py-2 font-bold uppercase border-[3px] border-black brutal-shadow hover:bg-black hover:text-[#FDC500] flex items-center gap-2 transition-colors"
         >
-          <UserPlus size={18} /> Add User
+          <UserPlus size={18} /> Tambah Pengguna
         </button>
       </div>
 
@@ -227,13 +227,13 @@ export const UserManagement = () => {
         <table className="w-full text-left font-mono text-sm">
           <thead className="bg-[#003B73] text-white border-b-[4px] border-black font-bold uppercase">
             <tr>
-              <th className="p-4">Name</th>
+              <th className="p-4">Nama</th>
               <th className="p-4">Email</th>
-              <th className="p-4">Role</th>
+              <th className="p-4">Peran</th>
               <th className="p-4">Status</th>
-              <th className="p-4">Current Password</th>
-              <th className="p-4">Location</th>
-              <th className="p-4 text-center">Actions</th>
+              <th className="p-4">Kata Sandi Saat Ini</th>
+              <th className="p-4">Lokasi</th>
+              <th className="p-4 text-center">Tindakan</th>
             </tr>
           </thead>
           <tbody>
@@ -260,13 +260,13 @@ export const UserManagement = () => {
                       <button
                         onClick={() => togglePasswordVisibility(u.id)}
                         className="text-gray-400 hover:text-[#003B73] transition-colors"
-                        title={visiblePasswordIds.has(u.id) ? 'Hide password' : 'Show password'}
+                        title={visiblePasswordIds.has(u.id) ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'}
                       >
                         {visiblePasswordIds.has(u.id) ? <EyeOff size={14} /> : <Eye size={14} />}
                       </button>
                     </div>
                   ) : (
-                    <span className="text-xs text-gray-300 italic">Not set</span>
+                    <span className="text-xs text-gray-300 italic">Belum ada kata sandi</span>
                   )}
                 </td>
                 <td className="p-4">
@@ -290,7 +290,7 @@ export const UserManagement = () => {
                         className="flex items-center gap-1 text-xs text-gray-500 hover:text-[#003B73] transition-colors"
                       >
                         <MapPin size={12} />
-                        {u.current_location ?? <span className="italic text-gray-400">Not set</span>}
+                        {u.current_location ?? <span className="italic text-gray-400">Belum diatur</span>}
                       </button>
                     )
                   ) : (
@@ -302,7 +302,7 @@ export const UserManagement = () => {
                     <button
                       onClick={() => openEdit(u)}
                       className="p-2 bg-blue-100 text-blue-600 border-[2px] border-blue-200 hover:border-blue-600 transition-colors"
-                      title="Edit user"
+                      title="Edit pengguna"
                     >
                       <Pencil size={16} />
                     </button>
@@ -310,7 +310,7 @@ export const UserManagement = () => {
                       <button
                         onClick={() => handleDeleteUser(u.id)}
                         className="p-2 bg-red-100 text-red-600 border-[2px] border-red-200 hover:border-red-600 transition-colors"
-                        title="Delete user"
+                        title="Hapus pengguna"
                       >
                         <Trash2 size={16} />
                       </button>
@@ -321,7 +321,7 @@ export const UserManagement = () => {
             ))}
             {users.length === 0 && (
               <tr>
-                <td colSpan={7} className="p-4 text-center text-gray-500">No users found.</td>
+                <td colSpan={7} className="p-4 text-center text-gray-500">Tidak ada pengguna ditemukan.</td>
               </tr>
             )}
           </tbody>
@@ -341,7 +341,7 @@ export const UserManagement = () => {
                 <button
                   onClick={() => openEdit(u)}
                   className="p-2 bg-blue-100 text-blue-600 border-[2px] border-blue-200"
-                  title="Edit user"
+                  title="Edit pengguna"
                 >
                   <Pencil size={16} />
                 </button>
@@ -349,7 +349,7 @@ export const UserManagement = () => {
                   <button
                     onClick={() => handleDeleteUser(u.id)}
                     className="p-2 bg-red-100 text-red-600 border-[2px] border-red-200"
-                    title="Delete user"
+                    title="Hapus pengguna"
                   >
                     <Trash2 size={16} />
                   </button>
@@ -367,7 +367,7 @@ export const UserManagement = () => {
             {/* Current Password section */}
             <div className="mt-3 pt-3 border-t border-dashed border-gray-200">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-gray-500 uppercase">Current Password:</span>
+                <span className="text-xs font-bold text-gray-500 uppercase">Kata Sandi Saat Ini:</span>
                 {u.last_password ? (
                   <div className="flex items-center gap-1">
                     <span className="font-mono text-xs text-[#003B73]">
@@ -381,7 +381,7 @@ export const UserManagement = () => {
                     </button>
                   </div>
                 ) : (
-                  <span className="text-xs text-gray-300 italic">Not set</span>
+                  <span className="text-xs text-gray-300 italic">Belum ada kata sandi</span>
                 )}
               </div>
             </div>
@@ -403,7 +403,7 @@ export const UserManagement = () => {
                 ) : (
                   <button onClick={() => openLocationEdit(u)} className="flex items-center gap-2 text-xs text-gray-600 hover:text-[#003B73] transition-colors">
                     <MapPin size={12} />
-                    <span>{u.current_location ?? <span className="italic text-gray-400">Set location</span>}</span>
+                    <span>{u.current_location ?? <span className="italic text-gray-400">Atur lokasi</span>}</span>
                   </button>
                 )}
               </div>
@@ -416,7 +416,7 @@ export const UserManagement = () => {
       {showAddModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
           <div className="bg-white border-[6px] border-black p-6 w-full max-w-md shadow-[12px_12px_0px_#FDC500]">
-            <h3 className="text-2xl font-black uppercase text-[#003B73] mb-4">Add User</h3>
+            <h3 className="text-2xl font-black uppercase text-[#003B73] mb-4">Tambah Pengguna Baru</h3>
             {addError && (
               <div className="mb-3 p-3 bg-red-100 border-[2px] border-red-500 text-red-700 font-mono text-sm font-bold">
                 {addError}
@@ -435,17 +435,17 @@ export const UserManagement = () => {
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold mb-1">Display Name</label>
+                <label className="block text-xs font-bold mb-1">Nama Lengkap</label>
                 <input
                   required
                   value={newName}
                   onChange={e => setNewName(e.target.value)}
                   className="w-full border-[3px] border-black p-2 outline-none focus:border-[#003B73]"
-                  placeholder="Full name"
+                  placeholder="Nama lengkap"
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold mb-1">Password <span className="font-normal text-gray-400">(min 8 characters)</span></label>
+                <label className="block text-xs font-bold mb-1">Kata Sandi <span className="font-normal text-gray-400">(min 8 karakter)</span></label>
                 <div className="relative">
                   <input
                     type={showNewPassword ? 'text' : 'password'}
@@ -467,7 +467,7 @@ export const UserManagement = () => {
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-bold mb-1">Confirm Password</label>
+                <label className="block text-xs font-bold mb-1">Konfirmasi Kata Sandi</label>
                 <div className="relative">
                   <input
                     type={showNewConfirm ? 'text' : 'password'}
@@ -488,11 +488,11 @@ export const UserManagement = () => {
                   </button>
                 </div>
                 {newConfirmPassword && newPassword !== newConfirmPassword && (
-                  <p className="text-red-500 text-xs mt-1 font-bold">Passwords do not match</p>
+                  <p className="text-red-500 text-xs mt-1 font-bold">Kata sandi tidak cocok</p>
                 )}
               </div>
               <div>
-                <label className="block text-xs font-bold mb-1">Role</label>
+                <label className="block text-xs font-bold mb-1">Peran</label>
                 <select
                   value={newRole}
                   onChange={e => setNewRole(e.target.value as 'admin' | 'kurir')}
@@ -508,14 +508,14 @@ export const UserManagement = () => {
                   disabled={addLoading}
                   className="flex-grow bg-[#003B73] text-white font-bold py-3 uppercase border-[3px] border-black hover:bg-[#FDC500] hover:text-black transition-colors disabled:opacity-50"
                 >
-                  {addLoading ? 'Creating...' : 'Create User'}
+                  {addLoading ? 'Membuat...' : 'Buat Pengguna'}
                 </button>
                 <button
                   type="button"
                   onClick={() => { setShowAddModal(false); setAddError(''); }}
                   className="flex-grow bg-gray-200 text-black font-bold py-3 uppercase border-[3px] border-black hover:bg-gray-300 transition-colors"
                 >
-                  Cancel
+                  Batal
                 </button>
               </div>
             </form>
@@ -527,7 +527,7 @@ export const UserManagement = () => {
       {editUser && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
           <div className="bg-white border-[6px] border-black p-6 w-full max-w-md shadow-[12px_12px_0px_#FDC500]">
-            <h3 className="text-2xl font-black uppercase text-[#003B73] mb-1">Edit User</h3>
+            <h3 className="text-2xl font-black uppercase text-[#003B73] mb-1">Edit Pengguna</h3>
             <p className="font-mono text-xs text-gray-500 mb-4">{editUser.email}</p>
             {editError && (
               <div className="mb-3 p-3 bg-red-100 border-[2px] border-red-500 text-red-700 font-mono text-sm font-bold">
@@ -536,7 +536,7 @@ export const UserManagement = () => {
             )}
             <form onSubmit={handleEditUser} className="flex flex-col gap-4 font-mono">
               <div>
-                <label className="block text-xs font-bold mb-1">Display Name</label>
+                <label className="block text-xs font-bold mb-1">Nama Lengkap</label>
                 <input
                   required
                   value={editName}
@@ -545,7 +545,7 @@ export const UserManagement = () => {
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold mb-1">Role</label>
+                <label className="block text-xs font-bold mb-1">Peran</label>
                 <select
                   value={editRole}
                   onChange={e => setEditRole(e.target.value as 'admin' | 'kurir')}
@@ -564,13 +564,13 @@ export const UserManagement = () => {
                   disabled={editUser.email === PROTECTED_EMAIL}
                   className="w-full border-[3px] border-black p-2 outline-none font-bold uppercase disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
+                  <option value="active">Aktif</option>
+                  <option value="inactive">Tidak Aktif</option>
                 </select>
               </div>
               {editRole === 'kurir' && (
                 <div>
-                  <label className="block text-xs font-bold mb-1">Daily Sales Target (Rp) <span className="font-normal text-gray-400">(leave empty for no target)</span></label>
+                  <label className="block text-xs font-bold mb-1">Target Harian (Rp) <span className="font-normal text-gray-400">(kosongkan jika tidak ada target)</span></label>
                   <input
                     type="number"
                     min={0}
@@ -582,7 +582,7 @@ export const UserManagement = () => {
                 </div>
               )}
               <div>
-                <label className="block text-xs font-bold mb-1">New Password <span className="font-normal text-gray-400">(leave blank to keep current)</span></label>
+                <label className="block text-xs font-bold mb-1">Kata Sandi Baru <span className="font-normal text-gray-400">(biarkan kosong untuk menyimpan saat ini)</span></label>
                 <div className="relative">
                   <input
                     type={showEditPassword ? 'text' : 'password'}
@@ -603,7 +603,7 @@ export const UserManagement = () => {
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-bold mb-1">Confirm New Password</label>
+                <label className="block text-xs font-bold mb-1">Konfirmasi Kata Sandi Baru</label>
                 <div className="relative">
                   <input
                     type={showEditConfirm ? 'text' : 'password'}
@@ -612,7 +612,7 @@ export const UserManagement = () => {
                     onChange={e => setEditConfirmPassword(e.target.value)}
                     disabled={!editPassword}
                     className={`w-full border-[3px] p-2 pr-10 outline-none focus:border-[#003B73] disabled:opacity-40 disabled:cursor-not-allowed disabled:bg-gray-50 ${editPassword && editConfirmPassword && editPassword !== editConfirmPassword ? 'border-red-500 bg-red-50' : 'border-black'}`}
-                    placeholder={editPassword ? '••••••••' : 'Enter new password first'}
+                    placeholder={editPassword ? '••••••••' : 'Masukkan kata sandi baru terlebih dahulu'}
                   />
                   <button
                     type="button"
@@ -625,10 +625,10 @@ export const UserManagement = () => {
                   </button>
                 </div>
                 {editPassword && editConfirmPassword && editPassword !== editConfirmPassword && (
-                  <p className="text-red-500 text-xs mt-1 font-bold">Passwords do not match</p>
+                  <p className="text-red-500 text-xs mt-1 font-bold">Kata sandi tidak cocok</p>
                 )}
                 {editPassword && editConfirmPassword && editPassword === editConfirmPassword && (
-                  <p className="text-green-600 text-xs mt-1 font-bold">✓ Passwords match</p>
+                  <p className="text-green-600 text-xs mt-1 font-bold">✓ Kata sandi cocok</p>
                 )}
               </div>
               <div className="flex gap-4 mt-2">
@@ -637,14 +637,14 @@ export const UserManagement = () => {
                   disabled={editLoading}
                   className="flex-grow bg-[#003B73] text-white font-bold py-3 uppercase border-[3px] border-black hover:bg-[#FDC500] hover:text-black transition-colors disabled:opacity-50"
                 >
-                  {editLoading ? 'Saving...' : 'Save Changes'}
+                  {editLoading ? 'Menyimpan...' : 'Simpan Perubahan'}
                 </button>
                 <button
                   type="button"
                   onClick={() => setEditUser(null)}
                   className="flex-grow bg-gray-200 text-black font-bold py-3 uppercase border-[3px] border-black hover:bg-gray-300 transition-colors"
                 >
-                  Cancel
+                  Batal
                 </button>
               </div>
             </form>

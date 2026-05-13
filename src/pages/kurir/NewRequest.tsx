@@ -43,7 +43,7 @@ export const NewRequest = () => {
       await submitRequest(requestedItems, note.trim());
       navigate('/kurir/history');
     } catch (err: any) {
-      setError(err?.message ?? 'Failed to submit request. Please try again.');
+      setError(err?.message ?? 'Gagal mengirim permintaan. Silakan coba lagi.');
       setIsSubmitting(false);
     }
   };
@@ -51,8 +51,8 @@ export const NewRequest = () => {
   return (
     <div className="flex flex-col gap-4 max-w-lg mx-auto w-full">
       <div className="bg-[#003B73] text-white border-[4px] border-black p-4 shadow-[4px_4px_0px_#FDC500]">
-        <h2 className="font-black text-xl uppercase mb-1">New Restock Request</h2>
-        <p className="font-mono text-xs opacity-80">Select items to request from central inventory.</p>
+        <h2 className="font-black text-xl uppercase mb-1">Permintaan Restock Baru</h2>
+        <p className="font-mono text-xs opacity-80">Pilih item untuk diminta dari inventaris pusat.</p>
       </div>
 
       {error && (
@@ -64,13 +64,13 @@ export const NewRequest = () => {
 
       {loadingInventory ? (
         <div className="bg-white border-[4px] border-black p-8 text-center font-mono font-bold">
-          Loading inventory...
+          Memuat inventaris...
         </div>
       ) : inventory.length === 0 ? (
         <div className="bg-white border-[4px] border-black p-8 text-center shadow-[4px_4px_0px_#FDC500]">
           <Package className="mx-auto mb-4 text-gray-400" size={48} />
-          <h3 className="font-black text-xl mb-2 text-[#003B73]">No Inventory Available</h3>
-          <p className="font-mono text-sm text-gray-500">Contact admin to add items to the central inventory.</p>
+          <h3 className="font-black text-xl mb-2 text-[#003B73]">Inventaris Tidak Tersedia</h3>
+          <p className="font-mono text-sm text-gray-500">Hubungi admin untuk menambahkan item ke inventaris pusat.</p>
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -79,7 +79,7 @@ export const NewRequest = () => {
               <div key={item.id} className={`p-4 flex items-center justify-between gap-3 ${index !== inventory.length - 1 ? 'border-b-[2px] border-gray-200' : ''}`}>
                 <div className="min-w-0">
                   <h4 className="font-bold text-[#003B73]">{item.name}</h4>
-                  <p className="font-mono text-[10px] text-gray-500">Central Stock: {item.stock_level}</p>
+                  <p className="font-mono text-[10px] text-gray-500">Stok Pusat: {item.stock_level}</p>
                 </div>
 
                 <div className="flex items-center gap-2 sm:gap-3 shrink-0">
@@ -97,7 +97,8 @@ export const NewRequest = () => {
                   <button
                     type="button"
                     onClick={() => handleUpdateQuantity(item, 1)}
-                    className="w-10 h-10 flex items-center justify-center border-[2px] border-black bg-[#FDC500] hover:bg-[#e5b200] transition-colors"
+                    disabled={getQuantity(item.id) >= item.stock_level}
+                    className="w-10 h-10 flex items-center justify-center border-[2px] border-black bg-[#FDC500] hover:bg-[#e5b200] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
                     <Plus size={16} />
                   </button>
@@ -107,12 +108,12 @@ export const NewRequest = () => {
           </div>
 
           <div className="bg-white border-[4px] border-black p-4 shadow-[4px_4px_0px_#FDC500]">
-            <label className="block font-black uppercase text-sm mb-2 text-[#003B73]">Additional Notes (Optional)</label>
+            <label className="block font-black uppercase text-sm mb-2 text-[#003B73]">Catatan Tambahan (Opsional)</label>
             <textarea
               value={note}
               onChange={e => setNote(e.target.value)}
               className="w-full border-[3px] border-black p-3 font-mono text-sm min-h-[100px] outline-none focus:border-[#003B73]"
-              placeholder="e.g. Urgent restock needed for event..."
+              placeholder="mis. Restock mendesak diperlukan untuk acara..."
             />
           </div>
 
@@ -121,9 +122,9 @@ export const NewRequest = () => {
             disabled={requestedItems.length === 0 || isSubmitting}
             className="w-full bg-[#003B73] text-[#FDC500] font-black py-4 uppercase tracking-widest border-[4px] border-black hover:bg-black hover:text-[#FDC500] transition-colors flex items-center justify-center gap-2 shadow-[4px_4px_0px_#FDC500] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[#003B73]"
           >
-            {isSubmitting ? 'Submitting...' : (
+            {isSubmitting ? 'Mengirim...' : (
               <>
-                <Send size={20} /> Submit Request
+                <Send size={20} /> Kirim Permintaan
               </>
             )}
           </button>

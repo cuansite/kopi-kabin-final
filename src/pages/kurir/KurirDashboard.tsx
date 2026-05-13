@@ -61,7 +61,7 @@ export const KurirDashboard = () => {
       await recordSale(items, quickCartTotal);
       setQuickCart({});
     } catch (err: any) {
-      setQuickSellError(err?.message ?? 'Failed to record sale. Try again.');
+      setQuickSellError(err?.message ?? 'Gagal mencatat penjualan. Coba lagi.');
     } finally {
       setIsQuickSelling(false);
     }
@@ -82,9 +82,9 @@ export const KurirDashboard = () => {
           <div className="flex items-start gap-3 mb-3">
             <AlertTriangle className="text-red-600 shrink-0 mt-0.5" size={20} />
             <div className="min-w-0">
-              <p className="font-black text-red-700 uppercase text-sm">Low Stock Alert</p>
+              <p className="font-black text-red-700 uppercase text-sm">Peringatan Stok Rendah</p>
               <p className="font-mono text-xs text-red-600 mt-0.5">
-                {lowStockItems.length} item{lowStockItems.length > 1 ? 's' : ''} running low or empty.
+                {lowStockItems.length} item{lowStockItems.length > 1 ? 's' : ''} hampir habis atau kosong.
               </p>
             </div>
           </div>
@@ -99,15 +99,15 @@ export const KurirDashboard = () => {
             to="/kurir/request"
             className="inline-block bg-red-600 text-white font-black text-xs uppercase px-4 py-2 border-[2px] border-black hover:bg-black transition-colors"
           >
-            Request Restock →
+            Minta Restock →
           </Link>
         </div>
       )}
 
       {/* Greeting */}
       <div className="bg-[#003B73] text-white border-[4px] border-black p-4 shadow-[4px_4px_0px_#FDC500]">
-        <p className="font-mono text-xs opacity-70 uppercase tracking-widest">Dashboard</p>
-        <p className="font-black text-xl text-[#FDC500] mt-1">{userData?.name ?? 'Courier'}</p>
+        <p className="font-mono text-xs opacity-70 uppercase tracking-widest">Dasbor</p>
+        <p className="font-black text-xl text-[#FDC500] mt-1">{userData?.name ?? 'Kurir'}</p>
       </div>
 
       {/* Location */}
@@ -115,9 +115,9 @@ export const KurirDashboard = () => {
         <div className="flex items-center gap-3">
           <MapPin className="text-[#003B73] shrink-0" size={22} />
           <div className="min-w-0">
-            <p className="font-mono text-[10px] text-[#003B73]/70 uppercase font-bold">Today's Location</p>
+            <p className="font-mono text-[10px] text-[#003B73]/70 uppercase font-bold">Lokasi Hari Ini</p>
             <p className="font-black text-[#003B73] break-words">
-              {currentLocation ?? 'No location assigned yet'}
+              {currentLocation ?? 'Belum ada lokasi yang ditetapkan'}
             </p>
           </div>
         </div>
@@ -127,12 +127,12 @@ export const KurirDashboard = () => {
       <div className="grid grid-cols-2 gap-3">
         <div className="bg-[#003B73] text-white border-[4px] border-black p-4 shadow-[4px_4px_0px_#FDC500]">
           <ShoppingCart className="text-[#FDC500] mb-2" size={22} />
-          <p className="font-mono text-[10px] opacity-80 uppercase">Today</p>
+          <p className="font-mono text-[10px] opacity-80 uppercase">Hari Ini</p>
           <p className="font-black text-lg text-[#FDC500] break-words">Rp {todayRevenue.toLocaleString('id-ID')}</p>
         </div>
         <div className="bg-white border-[4px] border-black p-4 shadow-[4px_4px_0px_#003B73]">
           <Clock className="text-[#003B73] mb-2" size={22} />
-          <p className="font-mono text-[10px] text-gray-500 uppercase">Sales Count</p>
+          <p className="font-mono text-[10px] text-gray-500 uppercase">Jumlah Penjualan</p>
           <p className="font-black text-2xl text-[#003B73]">{todayActivity}</p>
         </div>
       </div>
@@ -142,7 +142,7 @@ export const KurirDashboard = () => {
         <div className="bg-white border-[4px] border-black p-4 shadow-[4px_4px_0px_#FDC500]">
           <div className="flex items-center gap-3 mb-2">
             <Target className="text-[#003B73]" size={22} />
-            <h2 className="font-black text-lg uppercase text-[#003B73]">Daily Target</h2>
+            <h2 className="font-black text-lg uppercase text-[#003B73]">Target Harian</h2>
             <span className="ml-auto font-black text-sm text-[#003B73]">{Math.round(dailyTargetProgress)}%</span>
           </div>
           <div className="w-full bg-gray-200 border-[2px] border-black h-4">
@@ -154,7 +154,7 @@ export const KurirDashboard = () => {
           <p className="font-mono text-[10px] text-gray-500 mt-2">
             Rp {todayRevenue.toLocaleString('id-ID')} / Rp {dailyTarget.toLocaleString('id-ID')} target
             {dailyTargetProgress >= 100 && (
-              <span className="ml-2 text-green-600 font-bold">🎉 Target reached!</span>
+              <span className="ml-2 text-green-600 font-bold">🎉 Target tercapai!</span>
             )}
           </p>
         </div>
@@ -164,10 +164,10 @@ export const KurirDashboard = () => {
       <div className="bg-white border-[4px] border-black p-4 shadow-[4px_4px_0px_#FDC500]">
         <div className="flex items-center gap-3 mb-1">
           <TrendingUp className="text-[#003B73]" size={22} />
-          <h2 className="font-black text-lg uppercase text-[#003B73]">7-Day Earnings</h2>
+          <h2 className="font-black text-lg uppercase text-[#003B73]">Penghasilan 7 Hari</h2>
         </div>
         <p className="font-black text-2xl text-[#003B73]">Rp {weekRevenue.toLocaleString('id-ID')}</p>
-        <p className="font-mono text-[10px] text-gray-400 uppercase mt-1">Total sales from the last 7 days</p>
+        <p className="font-mono text-[10px] text-gray-400 uppercase mt-1">Total penjualan 7 hari terakhir</p>
       </div>
 
       {/* Quick Sell Panel */}
@@ -175,8 +175,8 @@ export const KurirDashboard = () => {
         <div className="bg-white border-[4px] border-black shadow-[4px_4px_0px_#FDC500] overflow-hidden">
           <div className="px-4 py-3 bg-[#003B73] flex items-center gap-2">
             <Zap className="text-[#FDC500]" size={18} />
-            <h2 className="font-black text-sm uppercase text-[#FDC500]">Quick Sell</h2>
-            <span className="font-mono text-[10px] text-white/60 ml-1">Top items</span>
+            <h2 className="font-black text-sm uppercase text-[#FDC500]">Jual Cepat</h2>
+            <span className="font-mono text-[10px] text-white/60 ml-1">Item terlaris</span>
           </div>
 
           {topSoldItems.map((item, i) => {
@@ -187,7 +187,7 @@ export const KurirDashboard = () => {
                 <div className="min-w-0">
                   <h4 className="font-bold text-[#003B73] break-words text-sm">{item.name}</h4>
                   <p className="font-mono text-[10px] text-gray-500">
-                    Rp {item.price.toLocaleString('id-ID')} · Stock: {maxQty}
+                    Rp {item.price.toLocaleString('id-ID')} · Stok: {maxQty}
                   </p>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
@@ -222,7 +222,7 @@ export const KurirDashboard = () => {
 
           {hasQuickCart && (
             <div className="px-4 py-2 bg-gray-50 border-t-[2px] border-gray-200 flex justify-between items-center font-mono text-sm">
-              <span className="font-bold text-gray-600">Total:</span>
+              <span className="font-bold text-gray-600">total:</span>
               <span className="font-black text-[#003B73]">Rp {quickCartTotal.toLocaleString('id-ID')}</span>
             </div>
           )}
@@ -233,8 +233,8 @@ export const KurirDashboard = () => {
               disabled={!hasQuickCart || isQuickSelling}
               className="w-full bg-[#003B73] text-[#FDC500] font-black py-3 uppercase tracking-widest border-[3px] border-black hover:bg-black hover:text-[#FDC500] transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[#003B73] text-sm"
             >
-              {isQuickSelling ? 'Processing...' : (
-                <><Zap size={16} /> Record Quick Sale</>
+              {isQuickSelling ? 'Memproses...' : (
+                <><Zap size={16} /> Catat Penjualan Cepat</>
               )}
             </button>
           </div>
@@ -245,22 +245,22 @@ export const KurirDashboard = () => {
       <div className="bg-white border-[4px] border-black p-4 shadow-[4px_4px_0px_#FDC500]">
         <div className="flex items-center gap-3 mb-3">
           <Package className="text-[#003B73]" size={24} />
-          <h2 className="font-black text-xl uppercase text-[#003B73]">Current Stock</h2>
+          <h2 className="font-black text-xl uppercase text-[#003B73]">Stok Saat Ini</h2>
         </div>
         {loadingStock ? (
-          <p className="font-mono text-sm text-gray-400">Loading stock...</p>
+          <p className="font-mono text-sm text-gray-400">Memuat stok...</p>
         ) : (
           <p className="font-mono text-sm text-gray-600">
             {stock.length === 0
-              ? 'No stock assigned yet.'
-              : `${stock.length} items assigned. ${lowStockItems.length > 0 ? `${lowStockItems.length} low or empty.` : 'All stocked.'}`}
+              ? 'Belum ada stok yang ditetapkan.'
+              : `${stock.length} item ditetapkan. ${lowStockItems.length > 0 ? `${lowStockItems.length} rendah atau kosong.` : 'Semua stok tersedia.'}`}
           </p>
         )}
       </div>
 
       {/* Latest request */}
       <div className="bg-[#003B73] text-white border-[4px] border-black p-4 shadow-[4px_4px_0px_#FDC500]">
-        <h2 className="font-black text-xl uppercase mb-1 text-[#FDC500]">Latest Request</h2>
+        <h2 className="font-black text-xl uppercase mb-1 text-[#FDC500]">Permintaan Terbaru</h2>
         {latestRequest ? (
           <div className="flex justify-between items-center gap-3 mt-2">
             <span className="font-mono text-xs">REQ-{latestRequest.id.slice(0, 8)}</span>
@@ -269,7 +269,7 @@ export const KurirDashboard = () => {
             </span>
           </div>
         ) : (
-          <p className="font-mono text-sm opacity-80 mt-2">No requests submitted yet.</p>
+          <p className="font-mono text-sm opacity-80 mt-2">Belum ada permintaan yang diajukan.</p>
         )}
       </div>
 
@@ -277,7 +277,7 @@ export const KurirDashboard = () => {
       {stock.length > 0 && (
         <div className="bg-white border-[4px] border-black overflow-hidden">
           <div className="px-4 py-2 bg-gray-50 border-b-[2px] border-black font-mono text-[10px] font-bold uppercase text-gray-500">
-            Assigned Inventory
+            Inventaris yang Ditetapkan
           </div>
           {stock.slice(0, 8).map(row => (
             <div key={row.inventory_id} className="flex justify-between gap-3 px-4 py-3 border-b border-gray-100 last:border-b-0 font-mono text-sm">
