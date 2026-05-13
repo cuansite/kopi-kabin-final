@@ -45,7 +45,6 @@ async function requireProfile(req: express.Request, res: express.Response, role?
 
   const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
   if (authError || !user) {
-    console.error('[requireProfile] getUser failed:', authError?.message, '| url:', supabaseUrl ? supabaseUrl.slice(0, 30) : 'MISSING', '| key set:', !!serviceRoleKey);
     res.status(401).json({ error: 'Invalid or expired token' });
     return null;
   }
@@ -162,15 +161,6 @@ app.post('/api/seed-admin', async (req, res) => {
   } catch (err: any) {
     res.status(400).json({ error: err?.message ?? 'Failed to create admin' });
   }
-});
-
-app.get('/api/debug-env', (_req, res) => {
-  res.json({
-    hasUrl: !!process.env.VITE_SUPABASE_URL,
-    urlPrefix: process.env.VITE_SUPABASE_URL?.slice(0, 30) ?? 'MISSING',
-    hasKey: !!process.env.APP_SUPABASE_SERVICE_KEY,
-    keyPrefix: process.env.APP_SUPABASE_SERVICE_KEY?.slice(0, 12) ?? 'MISSING',
-  });
 });
 
 // ── Profile ─────────────────────────────────────────────────────────────────
