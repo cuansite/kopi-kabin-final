@@ -9,7 +9,7 @@ export const TX_TYPE_BADGE: Record<string, { label: string; cls: string }> = {
 };
 
 export const TransactionTracker = () => {
-  const { stock, transactions, loadingStock, loadingTransactions, todayRevenue, recordSale } = useKurir();
+  const { stock, transactions, loadingStock, loadingTransactions, todayRevenue, recordSale, addToast } = useKurir();
 
   const [showSaleModal, setShowSaleModal] = useState(false);
   const [cart, setCart] = useState<SaleItem[]>([]);
@@ -55,6 +55,7 @@ export const TransactionTracker = () => {
       await recordSale(cart, total);
       setCart([]);
       setShowSaleModal(false);
+      addToast({ id: crypto.randomUUID(), variant: 'success', message: 'Penjualan berhasil dicatat!' });
     } catch (err: any) {
       setError(err?.message ?? 'Gagal mencatat penjualan. Coba lagi.');
     } finally {

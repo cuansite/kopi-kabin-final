@@ -92,6 +92,7 @@ interface KurirContextType {
 
   toasts: KurirToast[];
   dismissToast: (id: string) => void;
+  addToast: (toast: KurirToast) => void;
 
   recordSale: (items: SaleItem[], total: number) => Promise<void>;
   submitRequest: (items: { inventoryId: string; name: string; quantity: number }[], note: string) => Promise<void>;
@@ -388,6 +389,7 @@ export const KurirProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     dailyTargetProgress,
     toasts,
     dismissToast,
+    addToast,
     recordSale,
     submitRequest,
     refetchAll,

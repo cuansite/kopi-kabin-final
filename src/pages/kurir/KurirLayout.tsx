@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { LayoutDashboard, ShoppingCart, History, PackagePlus, LogOut, CheckCircle, XCircle, X } from 'lucide-react';
@@ -43,6 +43,7 @@ const KurirLayoutInner = () => {
   const { user, userData, loading, signOut } = useAuth();
   const { hasLowStock } = useKurir();
   const location = useLocation();
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   if (loading) return null;
   if (!user || (userData?.role !== 'kurir' && userData?.role !== 'admin')) return <Navigate to="/login/kurir" replace />;
@@ -75,11 +76,38 @@ const KurirLayoutInner = () => {
           <p className="font-mono text-[10px] opacity-80 truncate">{userData.name}</p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={signOut} className="p-3 hover:bg-white/10 border-[2px] border-white/20 transition-colors">
+          <button onClick={() => setShowLogoutConfirm(true)} className="p-3 hover:bg-white/10 border-[2px] border-white/20 transition-colors">
             <LogOut size={20} />
           </button>
         </div>
       </header>
+
+      {/* Logout confirmation bottom sheet */}
+      {showLogoutConfirm && (
+        <div className="fixed inset-0 z-[60] flex items-end justify-center">
+          <div className="absolute inset-0 bg-black/60" onClick={() => setShowLogoutConfirm(false)} />
+          <div className="relative w-full max-w-lg bg-white border-[4px] border-black shadow-[0px_-4px_0px_#FDC500]">
+            <div className="p-6">
+              <h2 className="font-black text-xl uppercase text-[#003B73] mb-1">Keluar dari akun?</h2>
+              <p className="font-mono text-xs text-gray-500 mb-6">Sesi Anda akan diakhiri dan Anda perlu masuk kembali.</p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowLogoutConfirm(false)}
+                  className="flex-1 py-3 border-[3px] border-black font-black uppercase text-sm hover:bg-gray-100 transition-colors"
+                >
+                  Batal
+                </button>
+                <button
+                  onClick={signOut}
+                  className="flex-1 py-3 bg-[#003B73] text-[#FDC500] border-[3px] border-black font-black uppercase text-sm hover:bg-black transition-colors flex items-center justify-center gap-2"
+                >
+                  <LogOut size={16} /> Keluar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Main Content */}
       <main className="flex-grow p-4 overflow-x-hidden">
