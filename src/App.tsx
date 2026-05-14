@@ -33,7 +33,7 @@ export default function App() {
           <a href="#about" className="hover:text-brand-red glitch-hover transition-colors">Tentang Kami</a>
           <a href="#visi" className="hover:text-brand-red glitch-hover transition-colors">Visi & Misi</a>
           <a href="#komunitas" className="hover:text-brand-orange glitch-hover transition-colors">Komunitas</a>
-          <a href="https://instagram.com/kopikabin" target="_blank" rel="noreferrer" className="flex items-center gap-2 border-[4px] border-brand-blue bg-white rounded-none px-5 py-2 font-bold uppercase brutal-shadow transition-all duration-300">
+          <a href="https://instagram.com/kopikabin.id" target="_blank" rel="noreferrer" className="flex items-center gap-2 border-[4px] border-brand-blue bg-white rounded-none px-5 py-2 font-bold uppercase brutal-shadow transition-all duration-300">
             <Instagram size={18} strokeWidth={2.5} />
             <span className="font-mono text-xs mt-0.5 tracking-widest">CONNECT_</span>
           </a>
@@ -61,7 +61,7 @@ export default function App() {
             <a href="#about" onClick={() => setIsMobileMenuOpen(false)} className="font-black text-2xl uppercase border-b-[2px] border-brand-blue/20 pb-2">Tentang Kami</a>
             <a href="#visi" onClick={() => setIsMobileMenuOpen(false)} className="font-black text-2xl uppercase border-b-[2px] border-brand-blue/20 pb-2">Visi & Misi</a>
             <a href="#komunitas" onClick={() => setIsMobileMenuOpen(false)} className="font-black text-2xl uppercase border-b-[2px] border-brand-blue/20 pb-2">Komunitas</a>
-            <a href="https://instagram.com/kopikabin" target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 border-[4px] border-brand-blue bg-white rounded-none px-5 py-4 font-bold uppercase brutal-shadow mt-4">
+            <a href="https://instagram.com/kopikabin.id" target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 border-[4px] border-brand-blue bg-white rounded-none px-5 py-4 font-bold uppercase brutal-shadow mt-4">
               <Instagram size={24} strokeWidth={2.5} />
               <span className="font-mono text-lg mt-0.5 tracking-widest">CONNECT_</span>
             </a>
@@ -276,7 +276,7 @@ export default function App() {
               {`>>`} Follow kami di Instagram untuk mengetahui jadwal rute Kopi Kabin.<br/><br/>
               {`>>`} Akses update menu terbaru, dan berbagai cerita menarik dari jalanan.
             </p>
-            <a href="https://instagram.com/kopikabin" className="group inline-flex items-center gap-4 bg-brand-yellow text-brand-navy border-[4px] border-brand-navy hover:bg-brand-red hover:text-white rounded-none px-8 py-4 font-bold uppercase text-xl brutal-shadow transition-all relative overflow-hidden">
+            <a href="https://instagram.com/kopikabin.id" className="group inline-flex items-center gap-4 bg-brand-yellow text-brand-navy border-[4px] border-brand-navy hover:bg-brand-red hover:text-white rounded-none px-8 py-4 font-bold uppercase text-xl brutal-shadow transition-all relative overflow-hidden">
               <span className="relative z-10 flex items-center gap-4 font-mono">
                 <Instagram size={28} />
                 INITIATE_FOLLOW

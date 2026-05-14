@@ -23,6 +23,19 @@ export const Login = ({ type }: { type: 'admin' | 'kurir' }) => {
     // (a) initial page load, and (b) the profile fetch after successful login
     if (loading) return;
 
+    // Already authenticated (not from an active login flow): auto-redirect to
+    // the appropriate dashboard so the user doesn't see the login form.
+    if (!authSucceeded && user && userData && userData.status === 'active') {
+      if (type === 'admin' && userData.role === 'admin') {
+        navigate('/admin', { replace: true });
+        return;
+      }
+      if (type === 'kurir' && (userData.role === 'kurir' || userData.role === 'admin')) {
+        navigate('/kurir', { replace: true });
+        return;
+      }
+    }
+
     // Only run login-result checks once auth has actually succeeded
     if (!authSucceeded) return;
 
@@ -51,7 +64,7 @@ export const Login = ({ type }: { type: 'admin' | 'kurir' }) => {
       if (userData.role === 'kurir' || userData.role === 'admin') navigate('/kurir');
       else { setError('Access Denied: kurir access required.'); setIsLoggingIn(false); setAuthSucceeded(false); signOut(); }
     }
-  }, [user, userData, loading, authSucceeded, navigate, type, signOut]);
+  }, [user, userData, loading, authSucceeded, serverError, navigate, type, signOut]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

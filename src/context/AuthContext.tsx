@@ -53,24 +53,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        fetchProfile();
-      } else {
-        setLoading(false);
-      }
-    });
+    // Track the user ID we fetched a profile for, so we can detect cross-tab
+    // session hijacking (e.g. a different user logs in on another tab of the
+    // same browser, which overwrites localStorage and fires SIGNED_IN here).
+    let activeUserId: string | null = null;
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session) {
-        setLoading(true);
-        setServerError(false);
-        fetchProfile();
-      } else {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT' || !session) {
+        activeUserId = null;
         setProfile(null);
         setServerError(false);
         setLoading(false);
+        return;
       }
+
+      // TOKEN_REFRESHED / USER_UPDATED: same user, token rotated — no need to
+      // re-hit the server for profile data that hasn't changed.
+      if (event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
+        return;
+      }
+
+      // SIGNED_IN or INITIAL_SESSION: verify this is the same user we already
+      // have a profile for; if a different user logged in on another tab, force
+      // a page reload so this tab starts fresh with the correct session.
+      if (activeUserId && activeUserId !== session.user.id) {
+        window.location.reload();
+        return;
+      }
+
+      setLoading(true);
+      setServerError(false);
+      activeUserId = session.user.id;
+      fetchProfile();
     });
 
     return () => subscription.unsubscribe();
