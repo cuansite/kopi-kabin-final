@@ -66,7 +66,7 @@ const KurirLayoutInner = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col font-sans pb-20">
+    <div className="min-h-screen bg-gray-100 flex flex-col font-sans" style={{ paddingBottom: 'calc(5rem + env(safe-area-inset-bottom, 0px))' }}>
       <ToastRenderer />
 
       {/* Header */}
@@ -120,7 +120,7 @@ const KurirLayoutInner = () => {
       </main>
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t-[4px] border-black flex z-50">
+      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t-[4px] border-black flex z-50" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
         {navItems.map((item) => {
           const isActive = location.pathname === item.path;
           return (

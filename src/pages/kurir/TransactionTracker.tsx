@@ -168,7 +168,7 @@ export const TransactionTracker = () => {
       </div>
 
       {showSaleModal && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center p-0 sm:p-4">
           <div className="absolute inset-0 bg-black/60" onClick={closeModal} />
 
           <div className="relative w-full sm:max-w-lg bg-white border-[4px] border-black shadow-[8px_8px_0px_#FDC500] flex flex-col max-h-[90vh] sm:max-h-[85vh]">
@@ -267,7 +267,7 @@ export const TransactionTracker = () => {
               )}
             </div>
 
-            <div className="p-4 border-t-[4px] border-black shrink-0 bg-white">
+            <div className="p-4 border-t-[4px] border-black shrink-0 bg-white" style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom, 0px))' }}>
               <button
                 onClick={handleSubmit}
                 disabled={cart.length === 0 || isSubmitting}
