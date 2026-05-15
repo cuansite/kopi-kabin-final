@@ -1,5 +1,5 @@
 import React, { useRef, useState, useCallback, useEffect } from "react";
-import { ChevronLeft, ChevronRight, Coffee, PackageCheck } from "lucide-react";
+import { ChevronLeft, ChevronRight, Coffee } from "lucide-react";
 import { KopiKabinLogo } from "./KopiKabinLogo";
 import { useMenu } from "../context/MenuContext";
 import { motion } from "motion/react";
@@ -199,16 +199,10 @@ export const MenuCarousel = () => {
                         </p>
                       </div>
 
-                      {/* Footer: power + stock */}
-                      <div className="flex items-center justify-between px-5 py-3 border-t-[2px] border-gray-100 bg-gray-50/60">
-                        <div>
-                          <p className="font-mono text-[9px] uppercase font-bold text-gray-400 tracking-widest">Power</p>
-                          <p className="font-black text-sm text-brand-blue">{item.power || '—'}</p>
-                        </div>
-                        <div className="flex items-center gap-1.5 font-mono text-[10px] font-bold uppercase text-brand-navy/60">
-                          <PackageCheck size={13} />
-                          Stock {item.stockLevel ?? 0}
-                        </div>
+                      {/* Footer: power only */}
+                      <div className="px-5 py-3 border-t-[2px] border-gray-100 bg-gray-50/60">
+                        <p className="font-mono text-[9px] uppercase font-bold text-gray-400 tracking-widest">Power</p>
+                        <p className="font-black text-sm text-brand-blue">{item.power || '—'}</p>
                       </div>
                     </div>
                   </motion.article>
