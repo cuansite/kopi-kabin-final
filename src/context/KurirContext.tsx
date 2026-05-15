@@ -342,11 +342,20 @@ export const KurirProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, [todayRevenue, dailyTarget]);
 
   const recordSale = useCallback(async (items: SaleItem[], total: number) => {
-    await apiRequest('/api/transactions/sale', {
+    const newTx = await apiRequest<TransactionRecord>('/api/transactions/sale', {
       method: 'POST',
       body: JSON.stringify({ items, totalAmount: total }),
     });
-    await Promise.all([loadStockRef.current?.(), loadTransactionsRef.current?.()]);
+    // Optimistic update: reflect changes immediately without waiting for refetch
+    setTransactions(prev => [newTx, ...prev]);
+    setStock(prev => prev.map(row => {
+      const sold = items.find(i => i.inventoryId === row.inventory_id);
+      if (!sold) return row;
+      return { ...row, quantity: Math.max(0, row.quantity - sold.quantity) };
+    }));
+    // Background sync — no await
+    loadStockRef.current?.();
+    loadTransactionsRef.current?.();
   }, []);
 
   const submitRequest = useCallback(async (
