@@ -170,16 +170,16 @@ export const KurirDashboard = () => {
                     type="button"
                     onClick={() => updateQuickCart(item.inventoryId, -1, maxQty)}
                     disabled={inCart === 0}
-                    className="w-9 h-9 flex items-center justify-center border-[2px] border-black bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-200 transition-colors"
+                    className="w-10 h-10 flex items-center justify-center border-[2px] border-black bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-200 transition-colors"
                   >
-                    <Minus size={14} />
+                    <Minus size={16} />
                   </button>
                   <span className="font-mono font-bold w-5 text-center text-sm">{inCart}</span>
                   <button
                     type="button"
                     onClick={() => updateQuickCart(item.inventoryId, 1, maxQty)}
                     disabled={inCart >= maxQty}
-                    className="w-9 h-9 flex items-center justify-center border-[2px] border-black bg-[#FDC500] hover:bg-[#e5b200] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                    className="w-10 h-10 flex items-center justify-center border-[2px] border-black bg-[#FDC500] hover:bg-[#e5b200] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                   >
                     <Plus size={14} />
                   </button>
@@ -218,7 +218,7 @@ export const KurirDashboard = () => {
 
       {/* Stats — 7-day earnings + daily target in one compact area */}
       <div className="grid grid-cols-2 gap-3">
-        <div className="bg-white border-[4px] border-black p-4 shadow-[4px_4px_0px_#FDC500]">
+        <div className="bg-white border-[4px] border-black p-4 shadow-[4px_4px_0px_#FDC500] min-w-0">
           <TrendingUp className="text-[#003B73] mb-2" size={18} />
           <p className="font-mono text-[10px] text-gray-500 uppercase">7 Hari</p>
           <p className="font-black text-lg text-[#003B73] break-words leading-tight mt-0.5">
@@ -227,7 +227,7 @@ export const KurirDashboard = () => {
         </div>
 
         {dailyTarget !== null && dailyTarget > 0 ? (
-          <div className="bg-white border-[4px] border-black p-4 shadow-[4px_4px_0px_#FDC500]">
+          <div className="bg-white border-[4px] border-black p-4 shadow-[4px_4px_0px_#FDC500] min-w-0">
             <Target className="text-[#003B73] mb-2" size={18} />
             <p className="font-mono text-[10px] text-gray-500 uppercase">Target Harian</p>
             <p className="font-black text-lg text-[#003B73] leading-tight mt-0.5">

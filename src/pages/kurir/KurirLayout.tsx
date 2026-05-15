@@ -13,7 +13,7 @@ const ToastRenderer = () => {
   if (toasts.length === 0) return null;
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-[100] flex flex-col gap-2 p-3 pointer-events-none">
+    <div className="fixed top-0 left-0 right-0 z-[100] flex flex-col gap-2 p-3 pointer-events-none" style={{ paddingTop: 'calc(0.75rem + env(safe-area-inset-top, 0px))' }}>
       {toasts.map(toast => (
         <KurirToastCard key={toast.id} toast={toast} onDismiss={dismissToast} />
       ))}
@@ -127,10 +127,10 @@ const KurirLayoutInner = () => {
             <Link
               key={item.path}
               to={item.path}
-              className={`flex-1 flex flex-col items-center justify-center min-h-[64px] p-2 gap-1 transition-colors ${isActive ? 'text-[#003B73] border-t-[4px] border-[#FDC500] -mt-[4px] bg-blue-50' : 'text-gray-500 hover:bg-gray-50'}`}
+              className={`flex-1 flex flex-col items-center justify-center min-h-[64px] p-2 gap-1 transition-colors ${isActive ? 'text-[#003B73] border-t-[4px] border-[#FDC500] bg-blue-50' : 'text-gray-500 border-t-[4px] border-transparent hover:bg-gray-50'}`}
             >
               {item.icon}
-              <span className="text-[10px] font-bold uppercase">{item.name}</span>
+              <span className="text-xs font-bold uppercase">{item.name}</span>
             </Link>
           );
         })}

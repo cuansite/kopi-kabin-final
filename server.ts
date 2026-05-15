@@ -488,7 +488,7 @@ app.get('/api/inventory', asyncRoute(async (req, res) => {
   if (!profile) return;
   const { data, error } = await supabaseAdmin
     .from('inventory')
-    .select('id, name, stock_level, price')
+    .select('id, name, stock_level, min_stock_level, price')
     .order('name');
   if (error) return res.status(500).json({ error: error.message });
   res.json(data ?? []);
@@ -514,6 +514,39 @@ app.delete('/api/inventory/:id', asyncRoute(async (req, res) => {
   const { error } = await supabaseAdmin.from('inventory').delete().eq('id', req.params.id);
   if (error) return res.status(400).json({ error: error.message });
   res.json({ ok: true });
+}));
+
+app.patch('/api/inventory/:id', asyncRoute(async (req, res) => {
+  const profile = await requireProfile(req, res, 'admin');
+  if (!profile) return;
+
+  const { stock_level, min_stock_level } = req.body as { stock_level?: number; min_stock_level?: number };
+  const updates: Record<string, number> = {};
+
+  if (stock_level !== undefined) {
+    if (!Number.isFinite(stock_level) || stock_level < 0) {
+      return res.status(400).json({ error: 'stock_level must be a non-negative integer' });
+    }
+    updates.stock_level = Math.floor(stock_level);
+  }
+  if (min_stock_level !== undefined) {
+    if (!Number.isFinite(min_stock_level) || min_stock_level < 0) {
+      return res.status(400).json({ error: 'min_stock_level must be a non-negative integer' });
+    }
+    updates.min_stock_level = Math.floor(min_stock_level);
+  }
+  if (Object.keys(updates).length === 0) {
+    return res.status(400).json({ error: 'No valid fields to update' });
+  }
+
+  const { data, error } = await supabaseAdmin
+    .from('inventory')
+    .update(updates)
+    .eq('id', req.params.id)
+    .select()
+    .single();
+  if (error) return res.status(400).json({ error: error.message });
+  res.json(data);
 }));
 
 // ── Requests ─────────────────────────────────────────────────────────────────

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useMenu, DEFAULT_MENU } from '../../context/MenuContext';
 import { apiRequest } from '../../services/api';
-import { Package, Plus, Database, Trash2 } from 'lucide-react';
+import { Package, Plus, Database, Trash2, Pencil, Check, X } from 'lucide-react';
 
 export const InventoryManagement = () => {
   const { menuItems, loading } = useMenu();
@@ -11,6 +11,10 @@ export const InventoryManagement = () => {
     id: '', name: '', price: '', cat: 'BEVERAGE', power: '50%', desc: '',
     stockLevel: '0', minStockLevel: '10'
   });
+
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editStock, setEditStock] = useState({ stockLevel: '', minStockLevel: '' });
+  const [isSavingStock, setIsSavingStock] = useState(false);
 
   const handleAddItem = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,6 +49,35 @@ export const InventoryManagement = () => {
       await apiRequest(`/api/inventory/${id}`, { method: 'DELETE' });
     } catch {
       alert('Gagal menghapus item');
+    }
+  };
+
+  const startEditing = (item: { id: string; stockLevel?: number; minStockLevel?: number }) => {
+    setEditingId(item.id);
+    setEditStock({
+      stockLevel: String(item.stockLevel ?? 0),
+      minStockLevel: String(item.minStockLevel ?? 10),
+    });
+  };
+
+  const handleSaveStock = async (id: string) => {
+    const stockLevel = parseInt(editStock.stockLevel, 10);
+    const minStockLevel = parseInt(editStock.minStockLevel, 10);
+    if (isNaN(stockLevel) || stockLevel < 0 || isNaN(minStockLevel) || minStockLevel < 0) {
+      alert('Masukkan angka yang valid (≥ 0)');
+      return;
+    }
+    setIsSavingStock(true);
+    try {
+      await apiRequest(`/api/inventory/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ stock_level: stockLevel, min_stock_level: minStockLevel }),
+      });
+      setEditingId(null);
+    } catch (err: any) {
+      alert('Gagal menyimpan stok:\n' + (err?.message ?? 'Unknown error'));
+    } finally {
+      setIsSavingStock(false);
     }
   };
 
@@ -132,16 +165,26 @@ export const InventoryManagement = () => {
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-         {menuItems.map(item => (
+         {menuItems.map(item => {
+           const isLow = (item.stockLevel ?? 0) < (item.minStockLevel ?? 20);
+           const isEditing = editingId === item.id;
+           return (
             <div key={item.id} className="bg-white border-[4px] border-black p-4 flex flex-col hover:-translate-y-1 transition-transform shadow-[6px_6px_0px_#003B73]">
                <div className="flex justify-between items-start gap-2 mb-2">
                  <h4 className="font-black text-xl leading-tight text-[#003B73] break-words min-w-0">{item.name}</h4>
-                 <div className="flex items-center gap-2">
+                 <div className="flex items-center gap-1.5 shrink-0">
                    <span className="font-mono text-[10px] font-bold bg-[#FDC500] px-2 py-1 border-[2px] border-black">ID_{item.id.slice(0, 6)}</span>
+                   <button
+                     onClick={() => isEditing ? setEditingId(null) : startEditing({ id: item.id, stockLevel: item.stockLevel, minStockLevel: item.minStockLevel })}
+                     className="p-1.5 bg-blue-100 text-blue-600 border-[2px] border-blue-200 hover:border-blue-600 hover:bg-blue-200 transition-colors"
+                     title="Edit stok"
+                   >
+                     {isEditing ? <X size={14} /> : <Pencil size={14} />}
+                   </button>
                    <button
                      onClick={() => handleDeleteItem(item.id, item.name)}
                      className="p-1.5 bg-red-100 text-red-600 border-[2px] border-red-200 hover:border-red-600 hover:bg-red-200 transition-colors"
-                     title="Delete item"
+                     title="Hapus item"
                    >
                      <Trash2 size={14} />
                    </button>
@@ -151,21 +194,58 @@ export const InventoryManagement = () => {
                <p className="font-mono text-sm font-bold text-gray-600 mb-4">Rp {Number(item.price).toLocaleString('id-ID')}</p>
 
                <div className="mt-auto border-t-[2px] border-dashed border-gray-300 pt-4">
-                 <div className="flex justify-between font-mono text-[10px] mb-1">
-                   <span>LEVEL STOK:</span>
-                   <span className={item.stockLevel && item.stockLevel < (item.minStockLevel || 20) ? 'text-red-500 font-bold' : ''}>
-                     {item.stockLevel || 0}
-                   </span>
-                 </div>
-                 <div className="w-full h-2 bg-gray-200 overflow-hidden">
-                    <div
-                      className={`h-full ${item.stockLevel && item.stockLevel < (item.minStockLevel || 20) ? 'bg-red-500' : 'bg-[#003B73]'}`}
-                      style={{ width: `${Math.min(((item.stockLevel || 0) / Math.max((item.minStockLevel || 20) * 5, item.stockLevel || 1) * 100), 100)}%` }}
-                    />
-                 </div>
+                 {isEditing ? (
+                   <div className="flex flex-col gap-2">
+                     <div>
+                       <label className="block font-mono text-[10px] font-bold mb-0.5 uppercase text-gray-500">Stok Saat Ini</label>
+                       <input
+                         type="number"
+                         min="0"
+                         value={editStock.stockLevel}
+                         onChange={e => setEditStock(s => ({ ...s, stockLevel: e.target.value }))}
+                         className="w-full border-[2px] border-black p-1.5 font-mono text-sm"
+                       />
+                     </div>
+                     <div>
+                       <label className="block font-mono text-[10px] font-bold mb-0.5 uppercase text-gray-500">Stok Minimum</label>
+                       <input
+                         type="number"
+                         min="0"
+                         value={editStock.minStockLevel}
+                         onChange={e => setEditStock(s => ({ ...s, minStockLevel: e.target.value }))}
+                         className="w-full border-[2px] border-black p-1.5 font-mono text-sm"
+                       />
+                     </div>
+                     <button
+                       onClick={() => handleSaveStock(item.id)}
+                       disabled={isSavingStock}
+                       className="w-full flex items-center justify-center gap-1 py-1.5 bg-[#003B73] text-white border-[2px] border-black font-bold text-xs uppercase hover:bg-black transition-colors disabled:opacity-50"
+                     >
+                       <Check size={14} /> {isSavingStock ? 'Menyimpan...' : 'Simpan'}
+                     </button>
+                   </div>
+                 ) : (
+                   <>
+                     <div className="flex justify-between font-mono text-[10px] mb-1">
+                       <span>LEVEL STOK:</span>
+                       <span className={isLow ? 'text-red-500 font-bold' : ''}>
+                         {item.stockLevel || 0}
+                         {isLow && <span className="ml-1 text-[9px] bg-red-100 text-red-600 border border-red-300 px-1">RENDAH</span>}
+                       </span>
+                     </div>
+                     <div className="w-full h-2 bg-gray-200 overflow-hidden">
+                        <div
+                          className={`h-full ${isLow ? 'bg-red-500' : 'bg-[#003B73]'}`}
+                          style={{ width: `${Math.min(((item.stockLevel || 0) / Math.max((item.minStockLevel || 20) * 5, item.stockLevel || 1) * 100), 100)}%` }}
+                        />
+                     </div>
+                     <p className="font-mono text-[9px] text-gray-400 mt-1">Min: {item.minStockLevel ?? 20}</p>
+                   </>
+                 )}
                </div>
             </div>
-         ))}
+           );
+         })}
       </div>
 
       {menuItems.length === 0 && (

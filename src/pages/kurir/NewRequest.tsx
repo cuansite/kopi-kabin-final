@@ -79,7 +79,15 @@ export const NewRequest = () => {
               <div key={item.id} className={`p-4 flex items-center justify-between gap-3 ${index !== inventory.length - 1 ? 'border-b-[2px] border-gray-200' : ''}`}>
                 <div className="min-w-0">
                   <h4 className="font-bold text-[#003B73]">{item.name}</h4>
-                  <p className="font-mono text-[10px] text-gray-500">Stok Pusat: {item.stock_level}</p>
+                  <div className="flex items-center gap-1.5 flex-wrap mt-0.5">
+                    <p className="font-mono text-[10px] text-gray-500">Stok Pusat: {item.stock_level}</p>
+                    {item.stock_level === 0 && (
+                      <span className="text-[10px] font-bold text-red-600 bg-red-100 border border-red-300 px-1.5 py-0.5 uppercase font-mono leading-none">Habis</span>
+                    )}
+                    {item.stock_level > 0 && item.stock_level <= (item.min_stock_level ?? 0) && (
+                      <span className="text-[10px] font-bold text-orange-600 bg-orange-100 border border-orange-300 px-1.5 py-0.5 uppercase font-mono leading-none">Stok Rendah</span>
+                    )}
+                  </div>
                 </div>
 
                 <div className="flex items-center gap-2 sm:gap-3 shrink-0">

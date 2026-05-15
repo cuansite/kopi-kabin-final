@@ -44,8 +44,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setServerError(true);
       } else {
         setServerError(false);
-        // 401/403: session valid but no active profile — sign out to clear the loop
-        await supabase.auth.signOut();
+        // 401/403: session valid but no active profile — sign out to clear the loop.
+        // Use 'local' scope so we only clear this device's session; 'global' (the
+        // default) would revoke the user's refresh tokens on every device they
+        // are signed in on, kicking shared/admin accounts off other dashboards.
+        await supabase.auth.signOut({ scope: 'local' });
       }
     } finally {
       setLoading(false);
@@ -99,7 +102,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   );
 
   const signOut = useCallback(async () => {
-    await supabase.auth.signOut();
+    // 'local' scope: sign out only this device. Default 'global' would revoke
+    // refresh tokens for every session of this user across all devices, which
+    // kicks shared accounts (e.g. an admin signed in on a kurir tablet) off
+    // their other dashboards.
+    await supabase.auth.signOut({ scope: 'local' });
   }, []);
 
   return (

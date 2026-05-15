@@ -42,6 +42,7 @@ export interface InventoryItem {
   id: string;
   name: string;
   stock_level: number;
+  min_stock_level?: number;
   price: number;
 }
 
