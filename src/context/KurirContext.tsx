@@ -342,21 +342,43 @@ export const KurirProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, [todayRevenue, dailyTarget]);
 
   const recordSale = useCallback(async (items: SaleItem[], total: number) => {
-    const newTx = await apiRequest<TransactionRecord>('/api/transactions/sale', {
-      method: 'POST',
-      body: JSON.stringify({ items, totalAmount: total }),
+    const tempId = `temp-${crypto.randomUUID()}`;
+    const optimisticTx: TransactionRecord = {
+      id: tempId,
+      kurir_id: userId ?? '',
+      kurir_name: '',
+      items: items.map(i => ({ inventoryId: i.inventoryId, name: i.name, price: i.price, quantity: i.quantity })),
+      total_amount: total,
+      type: 'sale',
+      created_at: new Date().toISOString(),
+    };
+
+    // Snapshot for rollback, then apply optimistic state BEFORE network round-trip
+    let stockSnapshot: CourierStockRow[] = [];
+    setStock(prev => {
+      stockSnapshot = prev;
+      return prev.map(row => {
+        const sold = items.find(i => i.inventoryId === row.inventory_id);
+        if (!sold) return row;
+        return { ...row, quantity: Math.max(0, row.quantity - sold.quantity) };
+      });
     });
-    // Optimistic update: reflect changes immediately without waiting for refetch
-    setTransactions(prev => [newTx, ...prev]);
-    setStock(prev => prev.map(row => {
-      const sold = items.find(i => i.inventoryId === row.inventory_id);
-      if (!sold) return row;
-      return { ...row, quantity: Math.max(0, row.quantity - sold.quantity) };
-    }));
-    // Background sync — no await
-    loadStockRef.current?.();
-    loadTransactionsRef.current?.();
-  }, []);
+    setTransactions(prev => [optimisticTx, ...prev]);
+
+    try {
+      const newTx = await apiRequest<TransactionRecord>('/api/transactions/sale', {
+        method: 'POST',
+        body: JSON.stringify({ items, totalAmount: total }),
+      });
+      // Replace temp tx with server-confirmed row (realtime channel reconciles stock)
+      setTransactions(prev => prev.map(t => t.id === tempId ? newTx : t));
+    } catch (err) {
+      // Rollback optimistic state on failure
+      setTransactions(prev => prev.filter(t => t.id !== tempId));
+      setStock(stockSnapshot);
+      throw err;
+    }
+  }, [userId]);
 
   const submitRequest = useCallback(async (
     items: { inventoryId: string; name: string; quantity: number }[],

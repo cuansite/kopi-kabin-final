@@ -47,20 +47,25 @@ export const TransactionTracker = () => {
     });
   };
 
-  const handleSubmit = async () => {
-    if (cart.length === 0) return;
+  const handleSubmit = () => {
+    if (cart.length === 0 || isSubmitting) return;
+    const itemsToSubmit = cart;
+    const totalToSubmit = total;
     setIsSubmitting(true);
     setError('');
-    try {
-      await recordSale(cart, total);
-      setCart([]);
-      setShowSaleModal(false);
-      addToast({ id: crypto.randomUUID(), variant: 'success', message: 'Penjualan berhasil dicatat!' });
-    } catch (err: any) {
-      setError(err?.message ?? 'Gagal mencatat penjualan. Coba lagi.');
-    } finally {
-      setIsSubmitting(false);
-    }
+    // Close modal + confirm immediately — recordSale applies optimistic state synchronously
+    setCart([]);
+    setShowSaleModal(false);
+    addToast({ id: crypto.randomUUID(), variant: 'success', message: 'Penjualan berhasil dicatat!' });
+    recordSale(itemsToSubmit, totalToSubmit)
+      .catch((err: any) => {
+        addToast({
+          id: crypto.randomUUID(),
+          variant: 'error',
+          message: err?.message ?? 'Gagal mencatat penjualan. Coba lagi.',
+        });
+      })
+      .finally(() => setIsSubmitting(false));
   };
 
   const openModal = () => {
